@@ -1,0 +1,76 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const connectLinks = [
+  { href: 'https://www.linkedin.com/in/alexcaesar', label: 'LinkedIn' },
+  { href: 'https://github.com/Alex-Caesar?tab=repositories', label: 'GitHub' },
+  { href: 'mailto:alexjcaesar@yahoo.com', label: 'Email' },
+];
+---
+
+<BaseLayout
+  title="About"
+  description="About Alexander Caesar — how to connect, and where to find the resume."
+>
+  <section class="page">
+    <h1>About</h1>
+
+    <div class="section">
+      <h2 id="connect">Connect</h2>
+      <ul class="connect-links">
+        {
+          connectLinks.map((link) => (
+            <li>
+              <a href={link.href}>{link.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <div class="section">
+      <h2 id="resume">Resume</h2>
+      <p>Two formats, same content:</p>
+      <ul class="resume-links">
+        <li>
+          <a href="/resumes/Caesar_Alexander_Resume.pdf">Download resume (PDF, classic format)</a>
+        </li>
+        <li>
+          <a href="/resumes/Caesar_Alexander_Resume_Modern.pdf">Download resume (PDF, modern format)</a>
+        </li>
+      </ul>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .page {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-4) var(--space-16);
+  }
+
+  .section {
+    margin-top: var(--space-12);
+  }
+
+  .section h2 {
+    margin: 0 0 var(--space-4);
+  }
+
+  .connect-links {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-left: var(--space-6);
+    font-size: var(--font-size-lg);
+  }
+
+  .resume-links {
+    padding-left: var(--space-6);
+  }
+
+  .resume-links li {
+    margin-bottom: var(--space-2);
+  }
+</style>

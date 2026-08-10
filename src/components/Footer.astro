@@ -1,0 +1,29 @@
+---
+import pkg from '../../package.json';
+
+const year = new Date().getUTCFullYear();
+---
+
+<footer class="site-footer">
+  <p>&copy; {year} Alexander Caesar</p>
+  <p><a href="https://github.com/Alex-Caesar/alexcaesar.xyz">v{pkg.version}</a></p>
+</footer>
+
+<style>
+  .site-footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-4) var(--space-12);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+  }
+
+  .site-footer p {
+    margin: 0;
+  }
+</style>

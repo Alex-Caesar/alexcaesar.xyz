@@ -1,0 +1,116 @@
+---
+// Reads the post aloud using the browser's own Web Speech API (speechSynthesis) — no server,
+// no API keys, no per-post generation step. Trade-off is voice quality: it's whatever voices
+// the visitor's own browser/OS ships with, not a studio-quality generated narration. Reads the
+// text straight out of the rendered `#post-body` element rather than the raw
+// markdown/MDX source, so it automatically stays in sync with whatever the post actually
+// renders as (headings, alt text is skipped since images aren't read, etc.) without needing a
+// second parallel copy of the content.
+interface Props {
+  targetId: string;
+}
+
+const { targetId } = Astro.props;
+---
+
+<button id="listen-button" class="listen-button" type="button" data-target={targetId} hidden>
+  <svg class="icon icon-play" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M8 5v14l11-7z" fill="currentColor" />
+  </svg>
+  <svg class="icon icon-pause" viewBox="0 0 24 24" aria-hidden="true" focusable="false" hidden>
+    <path d="M7 5h4v14H7zM13 5h4v14h-4z" fill="currentColor" />
+  </svg>
+  <span class="label">Listen to this post</span>
+</button>
+
+<script>
+  const button = document.getElementById('listen-button') as HTMLButtonElement | null;
+  if (button && 'speechSynthesis' in window) {
+    button.hidden = false;
+
+    const targetId = button.dataset.target;
+    const target = targetId ? document.getElementById(targetId) : null;
+    const iconPlay = button.querySelector('.icon-play') as HTMLElement | null;
+    const iconPause = button.querySelector('.icon-pause') as HTMLElement | null;
+    const label = button.querySelector('.label') as HTMLElement | null;
+
+    let utterance: SpeechSynthesisUtterance | null = null;
+
+    function pickVoice() {
+      const voices = speechSynthesis.getVoices();
+      const english = voices.filter((v) => v.lang?.toLowerCase().startsWith('en'));
+      const preferred = english.find((v) => /natural|premium|enhanced|google/i.test(v.name));
+      return preferred ?? english[0] ?? voices[0];
+    }
+
+    function setState(state: 'idle' | 'speaking' | 'paused') {
+      if (iconPlay) iconPlay.hidden = state === 'speaking';
+      if (iconPause) iconPause.hidden = state !== 'speaking';
+      if (label) label.textContent = state === 'speaking' ? 'Pause' : state === 'paused' ? 'Resume' : 'Listen to this post';
+    }
+
+    button.addEventListener('click', () => {
+      if (speechSynthesis.speaking && !speechSynthesis.paused) {
+        speechSynthesis.pause();
+        setState('paused');
+        return;
+      }
+
+      if (speechSynthesis.paused) {
+        speechSynthesis.resume();
+        setState('speaking');
+        return;
+      }
+
+      if (!target) return;
+      const text = target.innerText.trim();
+      if (!text) return;
+
+      utterance = new SpeechSynthesisUtterance(text);
+      const voice = pickVoice();
+      if (voice) utterance.voice = voice;
+      utterance.rate = 1;
+
+      utterance.addEventListener('end', () => setState('idle'));
+      utterance.addEventListener('error', () => setState('idle'));
+
+      speechSynthesis.cancel(); // clear anything stray before starting fresh
+      speechSynthesis.speak(utterance);
+      setState('speaking');
+    });
+
+    // Voice list loads async in some browsers — nothing to do here beyond letting pickVoice()
+    // re-read it on next click, but this keeps the very first click from racing an empty list.
+    speechSynthesis.addEventListener('voiceschanged', () => {}, { once: true });
+
+    window.addEventListener('pagehide', () => speechSynthesis.cancel());
+  }
+</script>
+
+<style>
+  .listen-button {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--color-text);
+    font: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+  }
+
+  .listen-button:hover {
+    border-color: var(--color-red-500);
+    background: var(--color-bg-raised);
+  }
+
+  .icon {
+    width: 1.1rem;
+    height: 1.1rem;
+    flex-shrink: 0;
+  }
+</style>

@@ -1,0 +1,70 @@
+---
+import { Image } from 'astro:assets';
+import meProfile from '../assets/images/me-profile.png';
+---
+
+<section class="bio" aria-labelledby="bio-heading">
+  <Image src={meProfile} alt="Portrait of Alexander Caesar" width={240} height={320} loading="eager" class="bio-image" />
+  <div class="bio-text">
+    <h2 id="bio-heading">A bit about me</h2>
+    <p>
+      I have always been drawn to building things, from my childhood constructing Lego creations to
+      delving into Software Development on a Raspberry Pi at the age of 13 with the guidance of my
+      Dad.
+    </p>
+    <p>
+      During my teenage years, I also explored music, video, and game production. I do not ever want
+      to stop learning and making.
+    </p>
+    <p>
+      As an avid user of technology, I like technology that works but I LOVE technology that "just
+      works" out the box with top-notch performance and efficiency right out of the box, regardless of
+      the environment.
+    </p>
+    <p>
+      My passion is Enabling, Automating, and Integrating Tools or Technologies with excellence to
+      help make products or services that "just work".
+    </p>
+    <p>
+      At an organizational level, I want to instill a culture of continuous improvement to drive
+      business growth and refine the developer experience.
+    </p>
+    <p>
+      <strong>My goal</strong> is to explore all that the world has to offer while spreading hope and
+      helping people climb
+      <a href="https://www.simplypsychology.org/maslow.html"> Maslow's Hierarchy of Needs</a>.
+    </p>
+  </div>
+</section>
+
+<style>
+  .bio {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+    align-items: flex-start;
+    max-width: 64rem;
+    margin: var(--space-6) auto var(--space-12);
+    padding: 0 var(--space-4);
+  }
+
+  .bio-image {
+    border-radius: var(--radius);
+    width: 15rem;
+    height: auto;
+    flex-shrink: 0;
+  }
+
+  .bio-text {
+    flex: 1 1 20rem;
+    min-width: 0;
+  }
+
+  .bio-text h2 {
+    margin-top: 0;
+  }
+
+  .bio-text p {
+    margin: 0 0 var(--space-4);
+  }
+</style>

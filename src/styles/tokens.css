@@ -1,0 +1,106 @@
+:root {
+  /* Morpho-derived neutrals */
+  --color-black: #15181a;
+  --color-gray-900: #222529;
+  --color-gray-700: #383b3e;
+  --color-gray-500: #6f7174;
+  --color-gray-300: #9c9d9f;
+  --color-white: #ffffff;
+  --color-off-white: #eee6d8;
+
+  /* Reds */
+  --color-red-700: #c70f24;
+  --color-red-500: #f0384d;
+  --color-red-300: #f89ba6;
+  /* red-700 darkened further: only shade that clears 4.5:1 as link text on a light background */
+  --color-red-link-light: #a60c1e;
+
+  /* Dark theme (default) */
+  --color-bg: var(--color-black);
+  --color-bg-raised: var(--color-gray-900);
+  --color-text: var(--color-white);
+  --color-text-muted: var(--color-gray-300);
+  --color-link: var(--color-red-300);
+  --color-link-hover: var(--color-red-500);
+  --color-accent-bg: var(--color-red-500);
+  --color-accent-text: var(--color-black);
+  --color-border: var(--color-gray-700);
+  --color-focus-ring: var(--color-red-300);
+
+  /* Type scale */
+  --font-sans: 'Space Grotesk Variable', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+  --font-size-4xl: clamp(2.5rem, 5vw + 1rem, 4.5rem);
+  --line-height-tight: 1.15;
+  --line-height-base: 1.6;
+
+  /* Spacing (4px scale) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  --radius: 0.5rem;
+  --max-width: 48rem;
+}
+
+/* Light theme: off-white rather than pure white.
+   Red-300/red-500 fail or barely pass AA as body text on this background (verified),
+   so light theme uses dark neutrals for text and reserves the brand reds
+   for non-text surfaces (buttons, badges, borders) plus one darkened link color.
+
+   Applied two ways:
+   - @media (prefers-color-scheme: light), guarded by :not([data-theme]) — the OS-driven
+     default, active until the user (or stored preference) picks explicitly via ThemeToggle.
+   - :root[data-theme="light"] — the explicit override, so a manual choice sticks regardless
+     of OS preference. Both blocks carry identical values; see :root[data-theme="dark"] below
+     for the equivalent explicit dark override. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --color-bg: var(--color-off-white);
+    --color-bg-raised: #ece9e3;
+    --color-text: var(--color-black);
+    --color-text-muted: var(--color-gray-700);
+    --color-link: var(--color-red-link-light);
+    --color-link-hover: var(--color-red-700);
+    --color-accent-bg: var(--color-red-500);
+    --color-accent-text: var(--color-black);
+    --color-border: var(--color-gray-300);
+    --color-focus-ring: var(--color-red-link-light);
+  }
+}
+
+:root[data-theme='light'] {
+  --color-bg: var(--color-off-white);
+  --color-bg-raised: #ece9e3;
+  --color-text: var(--color-black);
+  --color-text-muted: var(--color-gray-700);
+  --color-link: var(--color-red-link-light);
+  --color-link-hover: var(--color-red-700);
+  --color-accent-bg: var(--color-red-500);
+  --color-accent-text: var(--color-black);
+  --color-border: var(--color-gray-300);
+  --color-focus-ring: var(--color-red-link-light);
+}
+
+:root[data-theme='dark'] {
+  --color-bg: var(--color-black);
+  --color-bg-raised: var(--color-gray-900);
+  --color-text: var(--color-white);
+  --color-text-muted: var(--color-gray-300);
+  --color-link: var(--color-red-300);
+  --color-link-hover: var(--color-red-500);
+  --color-accent-bg: var(--color-red-500);
+  --color-accent-text: var(--color-black);
+  --color-border: var(--color-gray-700);
+  --color-focus-ring: var(--color-red-300);
+}

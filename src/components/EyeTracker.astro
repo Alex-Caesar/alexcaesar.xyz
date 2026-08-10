@@ -1,0 +1,308 @@
+---
+// A small SVG eye, top-left of the header. On devices with a real mouse it tracks the
+// cursor; on touch devices (no continuous pointermove to track) it idles with an occasional
+// blink instead. The sclera stays white/neutral (no theme colors on the eye itself), but the
+// iris is a red radial gradient with fine radiating "fiber" lines (see irisFibers below) for
+// texture, rather than a flat solid circle — plus the sclera slowly gets a couple of faint red
+// veins the longer the eye just sits there (a fixed, hand-placed pattern — not randomized —
+// since the point is a believable "it's been open a while" look, not variety).
+//
+// Eye geometry is defined once here, and the veins below are computed FROM it (not
+// hand-guessed coordinates) — otherwise vein points can drift outside the outline's curve and
+// visibly clip mid-stroke, which reads as a bug rather than a vein fading toward the iris.
+// A believable eye is a flat, slit-like almond (width well over 2x its height) — not a
+// rounder near-circle. The previous version opened the vertical curve up to make more travel
+// room for the iris, but that's what read as "ridiculous"/googly instead of like an eye. This
+// keeps the flatter, more realistic proportions and solves the "see more of the pupil"
+// problem the other way: a tight tracking range (see MAX_OFFSET below) instead of a wider eye.
+const CENTER = { x: 32, y: 18 };
+const HALF_WIDTH = 28; // corners sit at CENTER.x ± HALF_WIDTH
+const CTRL_Y_OFFSET = 16; // top/bottom control points sit this far above/below CENTER.y
+const LEFT_X = CENTER.x - HALF_WIDTH;
+const RIGHT_X = CENTER.x + HALF_WIDTH;
+const TOP_CTRL_Y = CENTER.y - CTRL_Y_OFFSET;
+const BOTTOM_CTRL_Y = CENTER.y + CTRL_Y_OFFSET;
+const IRIS_R = 7;
+
+const EYE_PATH = `M${LEFT_X},${CENTER.y} Q${CENTER.x},${TOP_CTRL_Y} ${RIGHT_X},${CENTER.y} Q${CENTER.x},${BOTTOM_CTRL_Y} ${LEFT_X},${CENTER.y} Z`;
+
+// Half the eye's vertical opening at a given x. The outline is two quadratic Béziers whose
+// control points share the corners' midpoint x, which makes this a closed form rather than
+// something that needs sampling the curve numerically.
+function halfHeightAt(x: number) {
+  const t = Math.max(0, Math.min(1, (x - LEFT_X) / (RIGHT_X - LEFT_X)));
+  return 2 * CTRL_Y_OFFSET * t * (1 - t);
+}
+
+// A vein point at a given x, biased toward the top/bottom (`side`) by `biasFraction` of the
+// local opening, but never closer than `margin` to the actual boundary — that margin is what
+// keeps the curve from clipping against the taper as it nears the corner.
+function veinPoint(x: number, side: 1 | -1, biasFraction: number) {
+  const margin = 1.1;
+  const opening = halfHeightAt(x);
+  const y = CENTER.y + side * Math.min(Math.max(0, opening - margin), biasFraction * opening);
+  return `${x},${y.toFixed(1)}`;
+}
+
+function veinPath(p0: string, p1: string, p2: string) {
+  return `M${p0} Q${p1} ${p2}`;
+}
+
+// Each vein runs from near a corner in toward the iris (ending just short of where the iris
+// will cover it), on the same side of center throughout — real scleral veins don't cross the
+// midline or wander back on themselves.
+const veins = [
+  {
+    d: veinPath(veinPoint(LEFT_X + 4, 1, 0.55), veinPoint(LEFT_X + 11, 1, 0.6), veinPoint(CENTER.x - IRIS_R - 1, 1, 0.4)),
+    width: 0.8,
+    duration: 75,
+    delay: 8,
+  },
+  {
+    d: veinPath(
+      veinPoint(RIGHT_X - 4, -1, 0.5),
+      veinPoint(RIGHT_X - 12, -1, 0.55),
+      veinPoint(CENTER.x + IRIS_R + 1, -1, 0.35)
+    ),
+    width: 0.7,
+    duration: 90,
+    delay: 20,
+  },
+  {
+    d: veinPath(veinPoint(LEFT_X + 7, -1, 0.6), veinPoint(LEFT_X + 14, -1, 0.5), veinPoint(CENTER.x - IRIS_R - 2, -1, 0.3)),
+    width: 0.6,
+    duration: 100,
+    delay: 35,
+  },
+];
+
+// Eyelashes: short strokes rooted on the upper lid curve, fanning outward — a lash near the
+// outer corner angles sharply out to the side, one at dead center points straight up, with a
+// smooth sweep between. Root points come from the same top-curve formula as the outline path
+// itself, so they always sit exactly on the lid regardless of any future geometry tweaks.
+function topLidPoint(t: number) {
+  const x = LEFT_X * (1 - t) ** 2 + 2 * CENTER.x * t * (1 - t) + RIGHT_X * t ** 2;
+  const y = CENTER.y * (1 - t) ** 2 + 2 * TOP_CTRL_Y * t * (1 - t) + CENTER.y * t ** 2;
+  return { x, y };
+}
+
+function lash(t: number, angleDeg: number, length: number) {
+  const p = topLidPoint(t);
+  const rad = (angleDeg * Math.PI) / 180;
+  const dx = Math.sin(rad) * length;
+  const dy = -Math.cos(rad) * length;
+  return `M${p.x.toFixed(1)},${p.y.toFixed(1)} l${dx.toFixed(1)},${dy.toFixed(1)}`;
+}
+
+const lashes = [
+  lash(0.14, -58, 3.2),
+  lash(0.3, -28, 3.6),
+  lash(0.5, 0, 3.8),
+  lash(0.7, 28, 3.6),
+  lash(0.86, 58, 3.2),
+];
+
+const PUPIL_R = IRIS_R * 0.46;
+
+// Iris fibers: thin lines radiating out from just past the pupil to just inside the iris's own
+// edge, evenly spaced with a small deterministic offset per line (not randomized — like the
+// veins/lashes, a fixed pattern) so it reads as a real iris's radial fiber texture instead of a
+// flat disc of color.
+const FIBER_COUNT = 14;
+function irisFiber(i: number) {
+  const baseAngle = (360 / FIBER_COUNT) * i;
+  const jitter = ((i * 53) % 7) - 3;
+  const angle = ((baseAngle + jitter) * Math.PI) / 180;
+  const innerR = PUPIL_R * 1.25;
+  const outerR = IRIS_R * 0.88;
+  const x1 = CENTER.x + Math.cos(angle) * innerR;
+  const y1 = CENTER.y + Math.sin(angle) * innerR;
+  const x2 = CENTER.x + Math.cos(angle) * outerR;
+  const y2 = CENTER.y + Math.sin(angle) * outerR;
+  return `M${x1.toFixed(2)},${y1.toFixed(2)} L${x2.toFixed(2)},${y2.toFixed(2)}`;
+}
+const irisFibers = Array.from({ length: FIBER_COUNT }, (_, i) => irisFiber(i));
+---
+
+<div class="eye-tracker" aria-hidden="true">
+  <svg viewBox="0 0 64 36" width="96" height="54" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <clipPath id="eye-clip">
+        <path d={EYE_PATH} />
+      </clipPath>
+      <radialGradient id="iris-gradient" cx={CENTER.x} cy={CENTER.y} r={IRIS_R} gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#e2572b" />
+        <stop offset="55%" stop-color="#a5281a" />
+        <stop offset="100%" stop-color="#4a0f09" />
+      </radialGradient>
+    </defs>
+    <g id="eye-blink" class="eye-blink">
+      <path id="eye-outline" d={EYE_PATH} fill="#ffffff" stroke="var(--color-text-muted)" stroke-width="1.6" />
+      <g class="eye-lashes">
+        {lashes.map((d) => <path d={d} />)}
+      </g>
+      <g clip-path="url(#eye-clip)">
+        {
+          veins.map((v, i) => (
+            <path
+              class={`eye-vein eye-vein-${i + 1}`}
+              d={v.d}
+              style={`stroke-width:${v.width}; animation-duration:${v.duration}s; animation-delay:${v.delay}s;`}
+            />
+          ))
+        }
+        <g id="eye-iris">
+          <circle cx={CENTER.x} cy={CENTER.y} r={IRIS_R} fill="url(#iris-gradient)" />
+          <g class="iris-fibers">
+            {irisFibers.map((d) => <path d={d} />)}
+          </g>
+          <circle cx={CENTER.x} cy={CENTER.y} r={PUPIL_R} fill="#000000" />
+          <circle cx={CENTER.x - IRIS_R * 0.3} cy={CENTER.y - IRIS_R * 0.31} r={IRIS_R * 0.19} fill="#ffffff" opacity="0.85" />
+        </g>
+      </g>
+    </g>
+  </svg>
+</div>
+
+<script>
+  const EYE_CENTER = { x: 32, y: 18 };
+  // How far the iris can travel from center, in viewBox units. This eye is a flat, realistic
+  // almond shape (not opened up to make room for a wide swing), so the safe range is small —
+  // kept deliberately tight, both to avoid clipping against the taper and so it reads as
+  // glancing around rather than swinging out toward the corners.
+  const MAX_OFFSET = { x: 6, y: 2 };
+
+  const svg = document.querySelector('.eye-tracker svg');
+  const iris = document.getElementById('eye-iris');
+  const blinkGroup = document.getElementById('eye-blink');
+
+  const canTrack = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+  if (canTrack && svg && iris) {
+    let targetX = 0;
+    let targetY = 0;
+    let raf: number | null = null;
+
+    function apply() {
+      raf = null;
+      iris?.setAttribute('transform', `translate(${targetX.toFixed(2)} ${targetY.toFixed(2)})`);
+    }
+
+    window.addEventListener(
+      'pointermove',
+      (e) => {
+        const rect = svg!.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const dx = e.clientX - cx;
+        const dy = e.clientY - cy;
+        const dist = Math.hypot(dx, dy) || 1;
+        const nx = dx / dist;
+        const ny = dy / dist;
+        // The iris moves toward the cursor's direction, its distance saturating at 200px —
+        // (nx, ny) is a unit vector, so this is always exactly on or inside the
+        // (MAX_OFFSET.x, MAX_OFFSET.y) ellipse, never past it, regardless of angle.
+        const t = Math.min(1, dist / 200);
+        targetX = nx * MAX_OFFSET.x * t;
+        targetY = ny * MAX_OFFSET.y * t;
+        if (raf === null) raf = requestAnimationFrame(apply);
+      },
+      { passive: true }
+    );
+  }
+
+  // Blinks on every device, tracking or not — on a mouse it's interspersed with the tracking
+  // above (the two are independent), on touch it's the only sign of life since there's no
+  // pointermove to follow.
+  if (blinkGroup) {
+    const group = blinkGroup;
+    function scheduleBlink() {
+      const delay = 2600 + Math.random() * 3200;
+      setTimeout(() => {
+        group.classList.add('blinking');
+        setTimeout(() => group.classList.remove('blinking'), 160);
+        scheduleBlink();
+      }, delay);
+    }
+    scheduleBlink();
+  }
+</script>
+
+<style>
+  .eye-tracker {
+    display: flex;
+    align-items: center;
+  }
+
+  .eye-blink {
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 0.09s ease-in;
+  }
+
+  .eye-blink.blinking {
+    transform: scaleY(0.05);
+  }
+
+  .iris-fibers path {
+    fill: none;
+    stroke: #2a0805;
+    stroke-width: 0.3;
+    stroke-linecap: round;
+    opacity: 0.55;
+  }
+
+  /* Subtle on purpose: thin, short, and low-opacity — a hint of lashes rather than a
+     cartoon fan. Same muted tone as the outline so nothing about the eye reads as "colored"
+     except the veins. */
+  .eye-lashes path {
+    fill: none;
+    stroke: var(--color-text-muted);
+    stroke-width: 0.9;
+    stroke-linecap: round;
+    opacity: 0.6;
+  }
+
+  /* Fixed pattern, not randomized — each vein fades in from nothing on its own slow timeline
+     (staggered delays, set inline per-vein above) and holds once visible, so the eye reads as
+     freshly opened at first and gradually more "been sitting here a while" the longer the page
+     stays open. */
+  .eye-vein {
+    fill: none;
+    stroke: #b3372a;
+    stroke-linecap: round;
+    opacity: 0;
+    animation-timing-function: ease-out;
+    animation-fill-mode: forwards;
+  }
+
+  .eye-vein-1 {
+    animation-name: vein-appear-1;
+  }
+
+  .eye-vein-2 {
+    animation-name: vein-appear-2;
+  }
+
+  .eye-vein-3 {
+    animation-name: vein-appear-3;
+  }
+
+  @keyframes vein-appear-1 {
+    to {
+      opacity: 0.5;
+    }
+  }
+
+  @keyframes vein-appear-2 {
+    to {
+      opacity: 0.38;
+    }
+  }
+
+  @keyframes vein-appear-3 {
+    to {
+      opacity: 0.28;
+    }
+  }
+</style>

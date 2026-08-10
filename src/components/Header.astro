@@ -1,0 +1,102 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+import EyeTracker from './EyeTracker.astro';
+
+const { pathname } = Astro.url;
+const links = [
+  { href: '/', label: 'Home' },
+  { href: '/blog/', label: 'Blog' },
+  { href: '/about/', label: 'About' },
+];
+const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
+---
+
+<header class="site-header">
+  <div class="site-header-inner">
+    <div class="header-eye">
+      <EyeTracker />
+    </div>
+    <nav aria-label="Primary">
+      <ul>
+        {
+          links.map((link) => (
+            <li>
+              <a href={link.href} aria-current={isActive(link.href) ? 'page' : undefined}>
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+    <div class="header-toggle">
+      <ThemeToggle />
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: var(--color-bg);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .site-header-inner {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: var(--space-4);
+    /* Full page width, not the content column's --max-width — the toggle should land at the
+       actual right edge of the page, not the edge of the narrower reading column. */
+    width: 100%;
+    padding: var(--space-3) var(--space-6);
+  }
+
+  .header-eye {
+    justify-self: start;
+  }
+
+  nav {
+    justify-self: center;
+  }
+
+  .header-toggle {
+    justify-self: end;
+  }
+
+  /* Narrow viewports: the eye and theme toggle drop out entirely (their combination with the
+     nav made for a cramped, busy single line) — just the nav, left on its own. The grid's two
+     empty 1fr side columns still center it, same as when the eye/toggle occupied them. */
+  @media (max-width: 30rem) {
+    .header-eye,
+    .header-toggle {
+      display: none;
+    }
+
+    .site-header-inner {
+      padding: var(--space-3) var(--space-4);
+    }
+  }
+
+  nav ul {
+    display: flex;
+    gap: var(--space-6);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  nav a {
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  nav a[aria-current='page'] {
+    color: var(--color-text);
+    text-decoration: underline;
+    text-underline-offset: 0.25em;
+  }
+</style>

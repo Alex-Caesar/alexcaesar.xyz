@@ -1,0 +1,122 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Bio from '../components/Bio.astro';
+import NavCard from '../components/NavCard.astro';
+import GlobeMark from '../components/GlobeMark.astro';
+---
+
+<BaseLayout
+  title="Home"
+  description="Alexander Caesar — software developer. Resume, blog, and ways to connect."
+>
+  <section class="hero">
+    <h1 id="page-name">Alexander Caesar</h1>
+    <p class="tagline">Art and Science across the Universe</p>
+    <hr class="hero-divider" />
+  </section>
+
+  <Bio />
+
+  <nav aria-label="Site sections" class="section-nav">
+    <NavCard title="Ethereal" description="A Mind Altering Experience." />
+    <GlobeMark />
+    <NavCard title="Guillotine" description="Cutting Edge Technology." />
+    <GlobeMark />
+    <NavCard title="Untitled #1" description="To be discovered..." />
+  </nav>
+</BaseLayout>
+
+<script>
+  // A different gradient on the name every time the page loads (font stays fixed).
+  const name = document.getElementById('page-name');
+  if (name) {
+    const isDark =
+      document.documentElement.getAttribute('data-theme') === 'dark' ||
+      (!document.documentElement.getAttribute('data-theme') &&
+        window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+    // Lightness is biased so the gradient stays legible against the off-white light
+    // background and the near-black dark background, whatever hues get picked.
+    const lightness = isDark ? 62 + Math.random() * 12 : 36 + Math.random() * 12;
+    const hue1 = Math.random() * 360;
+    const hue2 = (hue1 + 70 + Math.random() * 110) % 360;
+    const angle = Math.floor(Math.random() * 360);
+
+    name.style.backgroundImage = `linear-gradient(${angle}deg, hsl(${hue1.toFixed(0)} 85% ${lightness.toFixed(0)}%), hsl(${hue2.toFixed(0)} 85% ${lightness.toFixed(0)}%))`;
+    name.style.backgroundClip = 'text';
+    name.style.webkitBackgroundClip = 'text';
+    name.style.color = 'transparent';
+  }
+</script>
+
+<style>
+  /* #main lives in BaseLayout, not this page, but this scoped block only ships on the homepage
+     bundle — so turning it into a flex column here doesn't touch any other page's layout. It
+     lets .section-nav soak up leftover viewport height with auto margins below, centering the
+     boxes+symbols in whatever empty space is left under the hero and bio instead of them just
+     trailing the bio near the top of a tall page. */
+  :global(#main) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero {
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: var(--space-16) var(--space-4) var(--space-6);
+    text-align: center;
+  }
+
+  .hero h1 {
+    font-size: var(--font-size-4xl);
+    margin: 0 0 var(--space-4);
+  }
+
+  .tagline {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-lg);
+    margin: 0;
+  }
+
+  .hero-divider {
+    /* Full width of the hero's own content column, matching the Bio section's width right
+       below it (both capped at the same 64rem) — not a short centered stub, and not the full
+       browser width either. */
+    width: 100%;
+    height: 1px;
+    margin: var(--space-8) 0 0;
+    border: none;
+    /* border-style: dashed doesn't give control over dash/gap size — a repeating background
+       does, which is what gives clearly visible spacing between dashes rather than the tight
+       default the browser would otherwise render. */
+    background-image: repeating-linear-gradient(to right, var(--color-border) 0 6px, transparent 6px 12px);
+  }
+
+  .section-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    gap: var(--space-4);
+    max-width: 64rem;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: auto;
+    margin-right: auto;
+    padding: var(--space-6) var(--space-4);
+  }
+
+  /* Portrait phones only: stack the boxes and drop the globes (no room for them between
+     full-width stacked cards). Landscape ("horizontal view") skips this block entirely, so a
+     rotated phone falls back to the normal row layout with the globes still showing. */
+  @media (max-width: 40rem) and (orientation: portrait) {
+    .section-nav {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .section-nav :global(.globe-mark) {
+      display: none;
+    }
+  }
+</style>

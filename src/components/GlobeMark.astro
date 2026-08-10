@@ -1,0 +1,217 @@
+---
+---
+
+<svg class="globe-mark" viewBox="0 0 100 100" aria-hidden="true">
+  <g transform="rotate(-16 50 50)">
+    <circle class="globe-line globe-outline" cx="50" cy="50" r="38" />
+    <ellipse class="globe-line" cx="50" cy="50" rx="38" ry="24" />
+    <ellipse class="globe-line" cx="50" cy="50" rx="38" ry="10" />
+    <line class="globe-line" x1="12" y1="50" x2="88" y2="50" />
+    <ellipse class="globe-line globe-meridian globe-meridian-a" cx="50" cy="50" rx="38" ry="38" />
+    <ellipse class="globe-line globe-meridian globe-meridian-b" cx="50" cy="50" rx="38" ry="38" />
+    <circle class="globe-dot globe-dot-1" cx="50" cy="28" r="2" />
+    <circle class="globe-dot globe-dot-2" cx="50" cy="42" r="1.5" />
+    <circle class="globe-dot globe-dot-3" cx="50" cy="54" r="1.8" />
+    <circle class="globe-dot globe-dot-4" cx="50" cy="66" r="1.3" />
+    <circle class="globe-dot globe-dot-5" cx="50" cy="78" r="1.7" />
+  </g>
+</svg>
+
+<style>
+  .globe-mark {
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    align-self: center;
+    overflow: visible;
+  }
+
+  .globe-line {
+    fill: none;
+    stroke: var(--color-text-muted);
+    stroke-width: 1.3;
+  }
+
+  .globe-outline {
+    stroke-width: 1.8;
+  }
+
+  .globe-dot {
+    fill: var(--color-text-muted);
+  }
+
+  /* Meridians and "landmass" dots share the same fake-depth trick: each swings between the
+     sphere's near and far side once per cycle, dimming as it recedes (scaleX/translateX pass
+     through 0 or their midpoint) and brightening as it swings back toward the viewer. Everything
+     shares one 7s period so the whole globe reads as a single rotating object rather than
+     independently-animated parts. */
+  .globe-meridian,
+  .globe-dot {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation-duration: 7s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+
+  .globe-meridian {
+    animation-name: globe-spin;
+  }
+
+  .globe-meridian-b {
+    animation-delay: -3.5s;
+  }
+
+  /* Delays are the 7s period split into five even slices (0, 1.4, 2.8, 4.2, 5.6s) so no two dots
+     ever reach center at the same moment — uneven spacing made several land on the vertical
+     midline together, which visually read as a broken dashed line through the globe. */
+  .globe-dot-1 {
+    animation-name: globe-orbit-31;
+    animation-delay: 0s;
+  }
+
+  .globe-dot-2 {
+    animation-name: globe-orbit-37;
+    animation-delay: -1.4s;
+  }
+
+  .globe-dot-3 {
+    animation-name: globe-orbit-38;
+    animation-delay: -2.8s;
+  }
+
+  .globe-dot-4 {
+    animation-name: globe-orbit-35;
+    animation-delay: -4.2s;
+  }
+
+  .globe-dot-5 {
+    animation-name: globe-orbit-26;
+    animation-delay: -5.6s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .globe-meridian,
+    .globe-dot {
+      animation: none;
+    }
+  }
+
+  @keyframes globe-spin {
+    0% {
+      transform: scaleX(1);
+      opacity: 0.9;
+    }
+    50% {
+      transform: scaleX(-1);
+      opacity: 0.25;
+    }
+    100% {
+      transform: scaleX(1);
+      opacity: 0.9;
+    }
+  }
+
+  /* One orbit keyframe set per latitude row, sized to that row's radius on a sphere of
+     radius 38 (row radius = sqrt(38^2 - dy^2)) so every dot's arc matches the globe's actual
+     curvature at its height instead of all traveling the same distance. */
+  @keyframes globe-orbit-31 {
+    0%,
+    100% {
+      transform: translateX(-31px);
+      opacity: 0.15;
+    }
+    25% {
+      transform: translateX(0);
+      opacity: 0.95;
+    }
+    50% {
+      transform: translateX(31px);
+      opacity: 0.15;
+    }
+    75% {
+      transform: translateX(0);
+      opacity: 0.95;
+    }
+  }
+
+  @keyframes globe-orbit-37 {
+    0%,
+    100% {
+      transform: translateX(-37px);
+      opacity: 0.15;
+    }
+    25% {
+      transform: translateX(0);
+      opacity: 0.95;
+    }
+    50% {
+      transform: translateX(37px);
+      opacity: 0.15;
+    }
+    75% {
+      transform: translateX(0);
+      opacity: 0.95;
+    }
+  }
+
+  @keyframes globe-orbit-38 {
+    0%,
+    100% {
+      transform: translateX(-38px);
+      opacity: 0.15;
+    }
+    25% {
+      transform: translateX(0);
+      opacity: 0.95;
+    }
+    50% {
+      transform: translateX(38px);
+      opacity: 0.15;
+    }
+    75% {
+      transform: translateX(0);
+      opacity: 0.95;
+    }
+  }
+
+  @keyframes globe-orbit-35 {
+    0%,
+    100% {
+      transform: translateX(-35px);
+      opacity: 0.15;
+    }
+    25% {
+      transform: translateX(0);
+      opacity: 0.95;
+    }
+    50% {
+      transform: translateX(35px);
+      opacity: 0.15;
+    }
+    75% {
+      transform: translateX(0);
+      opacity: 0.95;
+    }
+  }
+
+  @keyframes globe-orbit-26 {
+    0%,
+    100% {
+      transform: translateX(-26px);
+      opacity: 0.15;
+    }
+    25% {
+      transform: translateX(0);
+      opacity: 0.95;
+    }
+    50% {
+      transform: translateX(26px);
+      opacity: 0.15;
+    }
+    75% {
+      transform: translateX(0);
+      opacity: 0.95;
+    }
+  }
+</style>
