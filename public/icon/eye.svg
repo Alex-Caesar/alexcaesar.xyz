@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 36">
+  <defs>
+    <radialGradient id="iris-gradient" cx="32" cy="18" r="7" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#e2572b" />
+      <stop offset="55%" stop-color="#a5281a" />
+      <stop offset="100%" stop-color="#4a0f09" />
+    </radialGradient>
+  </defs>
+  <style>
+    .eye-blink {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: eye-favicon-blink 5s ease-in-out infinite;
+    }
+    @keyframes eye-favicon-blink {
+      0%, 92%, 100% { transform: scaleY(1); }
+      95% { transform: scaleY(0.05); }
+      97% { transform: scaleY(1); }
+    }
+  </style>
+  <g class="eye-blink">
+    <path d="M4,18 Q32,2 60,18 Q32,34 4,18 Z" fill="#ffffff" stroke="#4a4a4a" stroke-width="2.4" />
+    <circle cx="32" cy="18" r="7" fill="url(#iris-gradient)" />
+    <circle cx="32" cy="18" r="3.2" fill="#000000" />
+    <circle cx="29.9" cy="15.8" r="1.3" fill="#ffffff" opacity="0.85" />
+  </g>
+</svg>
