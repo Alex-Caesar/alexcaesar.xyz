@@ -11,6 +11,12 @@
   /* Reds */
   --color-red-700: #c70f24;
   --color-red-500: #f0384d;
+  /* Dark-theme link/focus red: red-500 itself only just clears 4.5:1 on the near-black bg
+     (4.57:1), too tight a margin to rely on — but red-300 (8.69:1) has so much more lightness
+     than needed for AA that it reads as pink rather than red. This sits at the same hue/
+     saturation as the rest of the scale, just enough lighter than red-500 for a comfortable
+     ~5.3:1 margin without tipping into pink. */
+  --color-red-400: #f25466;
   --color-red-300: #f89ba6;
   /* red-700 darkened further: only shade that clears 4.5:1 as link text on a light background */
   --color-red-link-light: #a60c1e;
@@ -20,12 +26,12 @@
   --color-bg-raised: var(--color-gray-900);
   --color-text: var(--color-white);
   --color-text-muted: var(--color-gray-300);
-  --color-link: var(--color-red-300);
+  --color-link: var(--color-red-400);
   --color-link-hover: var(--color-red-500);
   --color-accent-bg: var(--color-red-500);
   --color-accent-text: var(--color-black);
   --color-border: var(--color-gray-700);
-  --color-focus-ring: var(--color-red-300);
+  --color-focus-ring: var(--color-red-400);
 
   /* Type scale */
   --font-sans: 'Space Grotesk Variable', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -97,10 +103,10 @@
   --color-bg-raised: var(--color-gray-900);
   --color-text: var(--color-white);
   --color-text-muted: var(--color-gray-300);
-  --color-link: var(--color-red-300);
+  --color-link: var(--color-red-400);
   --color-link-hover: var(--color-red-500);
   --color-accent-bg: var(--color-red-500);
   --color-accent-text: var(--color-black);
   --color-border: var(--color-gray-700);
-  --color-focus-ring: var(--color-red-300);
+  --color-focus-ring: var(--color-red-400);
 }

@@ -16,13 +16,15 @@
 // without the cache this script would re-roll a brand new pattern on every single page load,
 // which read as flickery/inconsistent rather than ambient.
 //
-// Every style here is ONE maze sized to fill the actual viewport exactly — not a small tile
+// Every style here is ONE pattern sized to fill the actual viewport exactly — not a small tile
 // repeated dozens of times via SVG <pattern> (that read as a busy, stamped-out wallpaper rather
 // than a single deliberate shape) — achieved by sizing the <pattern> tile itself to the current
-// window dimensions, so only one copy of it is ever visible. And every style is a genuine carved
+// window dimensions, so only one copy of it is ever visible. Most styles are a genuine carved
 // maze (a real randomized depth-first-search maze algorithm — the standard way solvable mazes
-// are generated), not just an organic-looking texture — only the grid topology or the way the
-// same carved maze gets drawn differs between styles. See carveMaze() in the script below.
+// are generated) over some grid topology (square, hex, triangular); a couple are fixed
+// tessellations (Voronoi, Penrose rhombi) drawn in full rather than maze-carved, since carving
+// walls out of those didn't read as cells at all. All the actual generator functions live in
+// ../lib/backgroundPatterns.ts.
 ---
 
 <div class="texture-layer" aria-hidden="true">
@@ -37,239 +39,7 @@
 </div>
 
 <script>
-  // Real entropy (the OS CSPRNG via Web Crypto), not Math.random's plain PRNG. Used two ways
-  // below: directly, for one-off choices (which style, which density); and as a seed for a fast
-  // local PRNG stream (mulberry32) where a generator needs many sequential random decisions,
-  // like a maze carve — reseeding straight from crypto.getRandomValues on every one of those
-  // would work too, just slower for no real entropy benefit.
-  function randomByte() {
-    return crypto.getRandomValues(new Uint8Array(1))[0];
-  }
-
-  function seededRand() {
-    let a = crypto.getRandomValues(new Uint32Array(1))[0];
-    return function () {
-      a |= 0;
-      a = (a + 0x6d2b79f5) | 0;
-      let t = Math.imul(a ^ (a >>> 15), 1 | a);
-      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    };
-  }
-
-  // A cell size + column/row count that together cover the whole current viewport with square
-  // cells — `cols` is picked from a few options (density variety, same idea as the old
-  // CELL_OPTIONS), `rows` is derived to reach at least the viewport height, rounding up so the
-  // grid always covers the full viewport with nothing left over for the pattern to repeat into.
-  function viewportGrid(colsOptions: number[] = [14, 18, 22]) {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    const cols = colsOptions[randomByte() % colsOptions.length];
-    const CELL = width / cols;
-    const rows = Math.max(1, Math.ceil(height / CELL));
-    return { CELL, cols, rows, width: cols * CELL, height: rows * CELL };
-  }
-
-  // Truchet curves — each cell holds one of two quarter-circle-arc orientations, radius
-  // jittered a little per cell. Truchet tiles always meet seamlessly edge-to-edge regardless of
-  // which orientation (or radius) lands next to which — the arc's endpoints stay pinned to the
-  // cell's edge midpoints no matter what radius draws the curve between them — which is what
-  // gives this the classic flowing circuit/labyrinth look.
-  function truchetCurves() {
-    const rand = seededRand();
-    const { CELL, cols, rows, width, height } = viewportGrid();
-    const baseR = CELL / 2;
-    let d = '';
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const x = col * CELL;
-        const y = row * CELL;
-        const r = baseR * (0.82 + rand() * 0.36);
-        d +=
-          rand() < 0.5
-            ? `M ${x + baseR} ${y} A ${r} ${r} 0 0 1 ${x} ${y + baseR} M ${x + baseR} ${y + CELL} A ${r} ${r} 0 0 1 ${x + CELL} ${y + baseR} `
-            : `M ${x + baseR} ${y} A ${r} ${r} 0 0 0 ${x + CELL} ${y + baseR} M ${x} ${y + baseR} A ${r} ${r} 0 0 0 ${x + baseR} ${y + CELL} `;
-      }
-    }
-    return { d, width, height };
-  }
-
-  // Generic maze carver: randomized depth-first search over an arbitrary graph (any grid
-  // topology — square, hex, ring, whatever `neighborsOf` describes). Produces a genuine
-  // "perfect maze" — every cell reachable from every other by exactly one path — which is what
-  // makes everything built on this a real maze rather than a texture that merely looks like one.
-  function carveMaze(cellIds: string[], neighborsOf: (id: string) => string[], rand: () => number) {
-    const visited = new Set<string>();
-    const open = new Set<string>();
-    function key(a: string, b: string) {
-      return a < b ? a + '|' + b : b + '|' + a;
-    }
-    const start = cellIds[0];
-    const stack = [start];
-    visited.add(start);
-    while (stack.length) {
-      const current = stack[stack.length - 1];
-      const options = neighborsOf(current).filter((n) => !visited.has(n));
-      if (options.length === 0) {
-        stack.pop();
-        continue;
-      }
-      const next = options[Math.floor(rand() * options.length)];
-      open.add(key(current, next));
-      visited.add(next);
-      stack.push(next);
-    }
-    return { open, key };
-  }
-
-  function squareNeighbors(cols: number, rows: number) {
-    return function (id: string) {
-      const [col, row] = id.split(',').map(Number);
-      const list = [];
-      if (row > 0) list.push(col + ',' + (row - 1));
-      if (row < rows - 1) list.push(col + ',' + (row + 1));
-      if (col > 0) list.push(col - 1 + ',' + row);
-      if (col < cols - 1) list.push(col + 1 + ',' + row);
-      return list;
-    };
-  }
-
-  function squareCellIds(cols: number, rows: number) {
-    const ids = [];
-    for (let row = 0; row < rows; row++) for (let col = 0; col < cols; col++) ids.push(col + ',' + row);
-    return ids;
-  }
-
-  // Same square-grid maze algorithm and topology as the others — but every interior grid vertex
-  // is nudged to a random (fixed, non-boundary) position before the walls are drawn, so cells
-  // come out as irregular quadrilaterals instead of perfect squares. Shared corners between
-  // neighboring cells are the same precomputed point, so edges still meet exactly — nothing
-  // about the actual maze structure changes, only its rendered shape.
-  function organicCellMaze() {
-    const rand = seededRand();
-    const { CELL, cols, rows, width, height } = viewportGrid();
-    const jitter = CELL * 0.22;
-    const verts: [number, number][][] = [];
-    for (let row = 0; row <= rows; row++) {
-      const line: [number, number][] = [];
-      for (let col = 0; col <= cols; col++) {
-        const boundary = row === 0 || row === rows || col === 0 || col === cols;
-        const jx = boundary ? 0 : (rand() - 0.5) * jitter;
-        const jy = boundary ? 0 : (rand() - 0.5) * jitter;
-        line.push([col * CELL + jx, row * CELL + jy]);
-      }
-      verts.push(line);
-    }
-    const cellIds = squareCellIds(cols, rows);
-    const { open, key } = carveMaze(cellIds, squareNeighbors(cols, rows), rand);
-    function edge(p1: [number, number], p2: [number, number]) {
-      return `M ${p1[0].toFixed(1)} ${p1[1].toFixed(1)} L ${p2[0].toFixed(1)} ${p2[1].toFixed(1)} `;
-    }
-    let d = '';
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const id = col + ',' + row;
-        const TL = verts[row][col];
-        const TR = verts[row][col + 1];
-        const BL = verts[row + 1][col];
-        const BR = verts[row + 1][col + 1];
-        if (row === 0 || !open.has(key(id, col + ',' + (row - 1)))) d += edge(TL, TR);
-        if (col === 0 || !open.has(key(id, col - 1 + ',' + row))) d += edge(TL, BL);
-        if (row === rows - 1) d += edge(BL, BR);
-        if (col === cols - 1) d += edge(TR, BR);
-      }
-    }
-    return { d, width, height };
-  }
-
-  // A real Voronoi diagram (random seed points, every region belongs to whichever seed is
-  // closest), rasterized at a fine grid across the viewport rather than computed as exact
-  // polygons. Deliberately not maze-carved — with only a couple dozen large regions, removing a
-  // spanning tree's worth of walls opened up big gaps and stopped reading as cells at all, so
-  // this shows the full partition, which is what actually looks good. Reads as organic,
-  // irregular, unevenly-sized cells — a genuinely different shape language from the jittered
-  // square grid of organicCellMaze.
-  function voronoiCells() {
-    const rand = seededRand();
-    const width = window.innerWidth;
-    const height = window.innerHeight;
-    const SEED_OPTIONS = [20, 28, 35]; // ~25% more regions than before — more going on visually
-    const seedCount = SEED_OPTIONS[randomByte() % SEED_OPTIONS.length];
-    const seeds = Array.from({ length: seedCount }, () => [rand() * width, rand() * height]);
-    const cols = 130;
-    const rows = Math.max(1, Math.round((cols * height) / width));
-    const cellW = width / cols;
-    const cellH = height / rows;
-    const owner: number[][] = [];
-    for (let ry = 0; ry < rows; ry++) {
-      const row: number[] = [];
-      const cy = (ry + 0.5) * cellH;
-      for (let rx = 0; rx < cols; rx++) {
-        const cx = (rx + 0.5) * cellW;
-        let best = 0;
-        let bestD = Infinity;
-        for (let i = 0; i < seeds.length; i++) {
-          const dx = seeds[i][0] - cx;
-          const dy = seeds[i][1] - cy;
-          const dd = dx * dx + dy * dy;
-          if (dd < bestD) {
-            bestD = dd;
-            best = i;
-          }
-        }
-        row.push(best);
-      }
-      owner.push(row);
-    }
-
-    let d = '';
-    for (let ry = 0; ry < rows; ry++) {
-      for (let rx = 0; rx < cols; rx++) {
-        const here = owner[ry][rx];
-        if (rx < cols - 1 && owner[ry][rx + 1] !== here) {
-          const x = (rx + 1) * cellW;
-          d += `M ${x.toFixed(1)} ${(ry * cellH).toFixed(1)} L ${x.toFixed(1)} ${((ry + 1) * cellH).toFixed(1)} `;
-        }
-        if (ry < rows - 1 && owner[ry + 1][rx] !== here) {
-          const y = (ry + 1) * cellH;
-          d += `M ${(rx * cellW).toFixed(1)} ${y.toFixed(1)} L ${((rx + 1) * cellW).toFixed(1)} ${y.toFixed(1)} `;
-        }
-      }
-    }
-    return { d, width, height };
-  }
-
-  // The other classic Truchet tile — predates the quarter-circle "Smith tiles" used by
-  // truchetCurves by centuries: each cell is just a single diagonal line, randomly one of two
-  // orientations. Sharp zigzag chevrons instead of flowing curves.
-  function diagonalTruchet() {
-    const rand = seededRand();
-    const { CELL, cols, rows, width, height } = viewportGrid([16, 20, 24]);
-    let d = '';
-    for (let row = 0; row < rows; row++) {
-      for (let col = 0; col < cols; col++) {
-        const x = col * CELL;
-        const y = row * CELL;
-        d +=
-          rand() < 0.5
-            ? `M ${x} ${y} L ${x + CELL} ${y + CELL} `
-            : `M ${x + CELL} ${y} L ${x} ${y + CELL} `;
-      }
-    }
-    return { d, width, height };
-  }
-
-  const STYLES: { fn: () => { d: string; width: number; height: number }; strokeWidth?: number }[] = [
-    { fn: truchetCurves },
-    { fn: organicCellMaze },
-    { fn: voronoiCells },
-    { fn: diagonalTruchet },
-  ];
-
-  function generate(style: (typeof STYLES)[number]) {
-    const { d, width, height } = style.fn();
-    return { d, width, height, strokeWidth: style.strokeWidth ?? 1.75 };
-  }
+  import { STYLES, generate, randomByte } from '../lib/backgroundPatterns';
 
   function apply({ d, width, height, strokeWidth }: { d: string; width: number; height: number; strokeWidth: number }) {
     const pattern = document.getElementById('maze-tile');
@@ -295,7 +65,7 @@
       layer.style.opacity = '0.35';
     }
     const tick = () => {
-      apply(generate(STYLES[i % STYLES.length]));
+      apply(generate(STYLES[i % STYLES.length], window.innerWidth, window.innerHeight));
       i++;
     };
     tick();
@@ -316,7 +86,7 @@
       }
     }
 
-    const result = cached ?? generate(STYLES[randomByte() % STYLES.length]);
+    const result = cached ?? generate(STYLES[randomByte() % STYLES.length], window.innerWidth, window.innerHeight);
     apply(result);
 
     if (!cached) {

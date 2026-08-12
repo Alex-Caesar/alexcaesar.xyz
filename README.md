@@ -8,7 +8,8 @@ Source for my personal website: resume, blog, and ways to connect.
 - Markdown-based [content collections](https://docs.astro.build/en/guides/content-collections/) for the blog
 - Plain CSS with custom properties for theming (no CSS framework)
 - [Space Grotesk](https://fonts.google.com/specimen/Space+Grotesk) (self-hosted via [Fontsource](https://fontsource.org/)) for type
-- Hand-authored, build-time-generated inline SVG for the homepage graphic — no raster images or animation libraries
+- Hand-authored, build-time-generated inline SVG for the header eye mark — no raster images or animation libraries
+- Client-side generated ambient background texture — Truchet tiles, hex/triangle mazes, Voronoi cells, and a genuine aperiodic Penrose rhombus tiling, drawn as SVG path data with a Web Crypto-seeded PRNG and reshuffled fresh each browsing session (see `src/lib/backgroundPatterns.ts`)
 
 Design goals: fast (static output, minimal JS, optimized images, self-hosted fonts) and accessible (semantic HTML, visible focus states, WCAG AA–checked color contrast in both light and dark themes, reduced-motion support).
 
@@ -20,7 +21,8 @@ src/
   content.config.ts Blog collection schema
   components/       Reusable Astro components
   layouts/          Page layouts (base + blog post)
-  pages/            Routes (/, /resume/, /blog/, /connect/)
+  lib/              Shared client-side logic (background pattern generators)
+  pages/            Routes (/, /about/, /blog/)
   styles/           Design tokens + global styles
 public/             Static assets (favicons, resume PDFs, fonts)
 ```
