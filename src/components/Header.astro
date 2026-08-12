@@ -13,9 +13,9 @@ const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.s
 
 <header class="site-header">
   <div class="site-header-inner">
-    <div class="header-eye">
+    <a class="header-eye" href="https://app.alexcaesar.xyz" aria-label="Open app.alexcaesar.xyz">
       <EyeTracker />
-    </div>
+    </a>
     <nav aria-label="Primary">
       <ul>
         {
@@ -52,11 +52,13 @@ const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.s
     /* Full page width, not the content column's --max-width — the toggle should land at the
        actual right edge of the page, not the edge of the narrower reading column. */
     width: 100%;
-    padding: var(--space-3) var(--space-6);
+    padding: var(--space-3) var(--space-4);
   }
 
   .header-eye {
+    display: inline-flex;
     justify-self: start;
+    border-radius: var(--radius);
   }
 
   nav {
@@ -74,10 +76,6 @@ const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.s
     .header-eye,
     .header-toggle {
       display: none;
-    }
-
-    .site-header-inner {
-      padding: var(--space-3) var(--space-4);
     }
   }
 

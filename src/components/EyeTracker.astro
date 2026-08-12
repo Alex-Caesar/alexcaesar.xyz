@@ -2,10 +2,11 @@
 // A small SVG eye, top-left of the header. On devices with a real mouse it tracks the
 // cursor; on touch devices (no continuous pointermove to track) it idles with an occasional
 // blink instead. The sclera stays white/neutral (no theme colors on the eye itself), but the
-// iris is a red radial gradient with fine radiating "fiber" lines (see irisFibers below) for
-// texture, rather than a flat solid circle — plus the sclera slowly gets a couple of faint red
-// veins the longer the eye just sits there (a fixed, hand-placed pattern — not randomized —
-// since the point is a believable "it's been open a while" look, not variety).
+// iris is a purple radial gradient (the site's brand accent) with fine radiating "fiber" lines
+// (see irisFibers below) for texture, rather than a flat solid circle — plus the sclera slowly
+// gets a couple of faint purple veins the longer the eye just sits there (a fixed, hand-placed
+// pattern — not randomized — since the point is a believable "it's been open a while" look, not
+// variety).
 //
 // Eye geometry is defined once here, and the veins below are computed FROM it (not
 // hand-guessed coordinates) — otherwise vein points can drift outside the outline's curve and
@@ -131,9 +132,9 @@ const irisFibers = Array.from({ length: FIBER_COUNT }, (_, i) => irisFiber(i));
         <path d={EYE_PATH} />
       </clipPath>
       <radialGradient id="iris-gradient" cx={CENTER.x} cy={CENTER.y} r={IRIS_R} gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stop-color="#e2572b" />
-        <stop offset="55%" stop-color="#a5281a" />
-        <stop offset="100%" stop-color="#4a0f09" />
+        <stop offset="0%" stop-color="#a145ed" />
+        <stop offset="55%" stop-color="#6e14b8" />
+        <stop offset="100%" stop-color="#2f084f" />
       </radialGradient>
     </defs>
     <g id="eye-blink" class="eye-blink">
@@ -246,7 +247,7 @@ const irisFibers = Array.from({ length: FIBER_COUNT }, (_, i) => irisFiber(i));
 
   .iris-fibers path {
     fill: none;
-    stroke: #2a0805;
+    stroke: #1c052e;
     stroke-width: 0.3;
     stroke-linecap: round;
     opacity: 0.55;
@@ -269,7 +270,7 @@ const irisFibers = Array.from({ length: FIBER_COUNT }, (_, i) => irisFiber(i));
      stays open. */
   .eye-vein {
     fill: none;
-    stroke: #b3372a;
+    stroke: #7a28bd;
     stroke-linecap: round;
     opacity: 0;
     animation-timing-function: ease-out;
