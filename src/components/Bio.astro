@@ -4,6 +4,9 @@ import meProfile from '../assets/images/me-profile.png';
 ---
 
 <section class="bio" aria-labelledby="bio-heading">
+  <svg class="bio-border" aria-hidden="true" preserveAspectRatio="none">
+    <rect x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="14" ry="14" />
+  </svg>
   <Image src={meProfile} alt="Portrait of Alexander Caesar" width={240} height={320} loading="eager" class="bio-image" />
   <div class="bio-text">
     <h2 id="bio-heading">A bit about me</h2>
@@ -39,13 +42,36 @@ import meProfile from '../assets/images/me-profile.png';
 
 <style>
   .bio {
+    position: relative;
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-8);
     align-items: flex-start;
     max-width: 64rem;
     margin: var(--space-6) auto var(--space-12);
-    padding: 0 var(--space-4);
+    padding: var(--space-6);
+  }
+
+  /* A rounded dashed box traced around the whole section — an SVG rect rather than
+     border-style: dashed, same reasoning as the old single-line divider it replaces: a real
+     border-style dash gives no control over dash/gap size, where stroke-dasharray does (6px
+     dash, 6px gap, matching that line's rhythm exactly). Inset by 1px on each side (and
+     preserveAspectRatio="none" so the rect isn't forced to stay square) so a centered stroke
+     never gets clipped by the SVG's own edge. */
+  .bio-border {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  .bio-border rect {
+    fill: none;
+    stroke: var(--color-border);
+    stroke-width: 1.5;
+    stroke-dasharray: 6 6;
   }
 
   .bio-image {

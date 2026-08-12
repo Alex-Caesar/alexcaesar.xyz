@@ -11,7 +11,6 @@ import NavCard from '../components/NavCard.astro';
   <section class="hero">
     <h1 id="page-name">Alexander Caesar</h1>
     <p class="tagline">Art and Science across the Universe</p>
-    <hr class="hero-divider" />
   </section>
 
   <Bio />
@@ -73,20 +72,6 @@ import NavCard from '../components/NavCard.astro';
     color: var(--color-text-muted);
     font-size: var(--font-size-lg);
     margin: 0;
-  }
-
-  .hero-divider {
-    /* Full width of the hero's own content column, matching the Bio section's width right
-       below it (both capped at the same 64rem) — not a short centered stub, and not the full
-       browser width either. */
-    width: 100%;
-    height: 1px;
-    margin: var(--space-8) 0 0;
-    border: none;
-    /* border-style: dashed doesn't give control over dash/gap size — a repeating background
-       does, which is what gives clearly visible spacing between dashes rather than the tight
-       default the browser would otherwise render. */
-    background-image: repeating-linear-gradient(to right, var(--color-border) 0 6px, transparent 6px 12px);
   }
 
   .section-nav {
