@@ -55,6 +55,13 @@ h4 {
   font-weight: 600;
 }
 
+/* Every page's top heading is purple except the home page's — its h1 sets its own gradient via
+   inline style (see index.astro's script), which naturally overrides this since inline style
+   always wins over a stylesheet rule. */
+h1 {
+  color: var(--color-link);
+}
+
 /* Visible, high-contrast focus ring everywhere — keyboard nav depends on this being obvious. */
 :focus-visible {
   outline: 2px solid var(--color-focus-ring);

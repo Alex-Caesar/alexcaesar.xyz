@@ -22,7 +22,7 @@ src/
   components/       Reusable Astro components
   layouts/          Page layouts (base + blog post)
   lib/              Shared client-side logic (background pattern generators)
-  pages/            Routes (/, /about/, /blog/)
+  pages/            Routes (/, /work/, /about/, /blog/)
   styles/           Design tokens + global styles
 public/             Static assets (favicons, resume PDFs, fonts)
 ```
@@ -38,18 +38,7 @@ npm run preview   # preview the production build locally
 
 ## Writing a blog post
 
-Add a new markdown file under `src/content/blog/` with frontmatter:
-
-```md
----
-title: Post Title
-description: One-sentence summary.
-pubDate: 2026-01-01
-tags: [tag-one, tag-two]
----
-
-Post body in markdown.
-```
+See [BLOGGING.md](BLOGGING.md) — frontmatter fields, image conventions, and links to the relevant docs.
 
 ## Deployment
 

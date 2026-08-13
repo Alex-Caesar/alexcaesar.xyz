@@ -15,11 +15,14 @@ import NavCard from '../components/NavCard.astro';
 
   <Bio />
 
-  <nav aria-label="Site sections" class="section-nav">
-    <NavCard title="Ethereal" description="A Mind Altering Experience." />
-    <NavCard title="Guillotine" description="Cutting Edge Technology." />
-    <NavCard title="Untitled #1" description="To be discovered..." />
-  </nav>
+  <div class="discover-block">
+    <h2 class="discover-label">Discover My Work</h2>
+    <nav aria-label="Site sections" class="section-nav">
+      <NavCard title="Ethereal" description="A Mind Altering Experience." />
+      <NavCard title="Guillotine" description="Cutting Edge Technology." />
+      <NavCard title="Untitled #1" description="To be discovered..." />
+    </nav>
+  </div>
 </BaseLayout>
 
 <script>
@@ -74,6 +77,22 @@ import NavCard from '../components/NavCard.astro';
     margin: 0;
   }
 
+  .discover-block {
+    /* Carries the auto margins .section-nav used to hold on its own, now that there's a label
+       above it too — still soaks up leftover viewport height the same way, just centering the
+       label+cards pair together instead of the cards alone. */
+    margin-top: auto;
+    margin-bottom: auto;
+    text-align: center;
+  }
+
+  .discover-label {
+    margin: 0 0 var(--space-4);
+    color: var(--color-link);
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+  }
+
   .section-nav {
     display: flex;
     flex-wrap: wrap;
@@ -81,10 +100,7 @@ import NavCard from '../components/NavCard.astro';
     align-items: stretch;
     gap: var(--space-4);
     max-width: 64rem;
-    margin-top: auto;
-    margin-bottom: auto;
-    margin-left: auto;
-    margin-right: auto;
+    margin: 0 auto;
     padding: var(--space-6) var(--space-4);
   }
 

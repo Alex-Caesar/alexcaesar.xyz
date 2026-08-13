@@ -7,7 +7,7 @@ import meProfile from '../assets/images/me-profile.png';
   <svg class="bio-border" aria-hidden="true" preserveAspectRatio="none">
     <rect x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="14" ry="14" />
   </svg>
-  <Image src={meProfile} alt="Portrait of Alexander Caesar" width={240} height={320} loading="eager" class="bio-image" />
+  <Image src={meProfile} alt="Portrait of Alexander Caesar" width={480} height={640} loading="eager" class="bio-image" />
   <div class="bio-text">
     <h2 id="bio-heading">A bit about me</h2>
     <p>
@@ -74,11 +74,17 @@ import meProfile from '../assets/images/me-profile.png';
     stroke-dasharray: 6 6;
   }
 
+  /* Was a fixed 15rem thumbnail dwarfed by the flexibly-growing text column next to it — now
+     sized on equal footing (same flex-basis, same grow factor as .bio-text) so the two columns
+     land at roughly comparable widths instead of one being a small fixed-size photo beside a
+     much wider text block. Capped at 24rem so it doesn't overshoot into a wall-sized portrait on
+     very wide viewports. */
   .bio-image {
     border-radius: var(--radius);
-    width: 15rem;
+    flex: 1 1 20rem;
+    max-width: 24rem;
+    width: 100%;
     height: auto;
-    flex-shrink: 0;
   }
 
   .bio-text {
