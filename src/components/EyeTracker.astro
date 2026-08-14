@@ -52,12 +52,15 @@ function veinPath(p0: string, p1: string, p2: string) {
 // Each vein runs from near a corner in toward the iris (ending just short of where the iris
 // will cover it), on the same side of center throughout — real scleral veins don't cross the
 // midline or wander back on themselves.
+// Durations/delays are tuned to the blink cycle below (every 20-30s) — each vein should be
+// able to at least mostly fade in before the next blink resets it, or the "refreshes on
+// blink" effect would never actually be visible.
 const veins = [
   {
     d: veinPath(veinPoint(LEFT_X + 4, 1, 0.55), veinPoint(LEFT_X + 11, 1, 0.6), veinPoint(CENTER.x - IRIS_R - 1, 1, 0.4)),
     width: 0.8,
-    duration: 75,
-    delay: 8,
+    duration: 14,
+    delay: 2,
   },
   {
     d: veinPath(
@@ -66,14 +69,14 @@ const veins = [
       veinPoint(CENTER.x + IRIS_R + 1, -1, 0.35)
     ),
     width: 0.7,
-    duration: 90,
-    delay: 20,
+    duration: 18,
+    delay: 5,
   },
   {
     d: veinPath(veinPoint(LEFT_X + 7, -1, 0.6), veinPoint(LEFT_X + 14, -1, 0.5), veinPoint(CENTER.x - IRIS_R - 2, -1, 0.3)),
     width: 0.6,
-    duration: 100,
-    delay: 35,
+    duration: 20,
+    delay: 8,
   },
 ];
 
@@ -180,6 +183,13 @@ const irisFibers = Array.from({ length: FIBER_COUNT }, (_, i) => irisFiber(i));
   const canTrack = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
   if (canTrack && svg && iris) {
+    // Each site page is a full navigation, not a client-side route change, so this whole
+    // script re-runs from scratch on every click — without this, targetX/targetY start back
+    // at (0,0) and the iris visibly snaps to dead-center on every nav click, even though the
+    // cursor itself never left wherever it was clicked. Persisting the last look-direction in
+    // sessionStorage and applying it immediately (before any pointermove has fired on the new
+    // page) is what keeps that from happening.
+    const STORAGE_KEY = 'eye-target';
     let targetX = 0;
     let targetY = 0;
     let raf: number | null = null;
@@ -187,6 +197,26 @@ const irisFibers = Array.from({ length: FIBER_COUNT }, (_, i) => irisFiber(i));
     function apply() {
       raf = null;
       iris?.setAttribute('transform', `translate(${targetX.toFixed(2)} ${targetY.toFixed(2)})`);
+      try {
+        sessionStorage.setItem(STORAGE_KEY, `${targetX.toFixed(2)},${targetY.toFixed(2)}`);
+      } catch {
+        // Storage full/unavailable (e.g. private browsing) — tracking still works this page,
+        // it just won't carry the look-direction into the next navigation.
+      }
+    }
+
+    try {
+      const stored = sessionStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const [sx, sy] = stored.split(',').map(Number);
+        if (Number.isFinite(sx) && Number.isFinite(sy)) {
+          targetX = sx;
+          targetY = sy;
+          iris.setAttribute('transform', `translate(${targetX.toFixed(2)} ${targetY.toFixed(2)})`);
+        }
+      }
+    } catch {
+      // Corrupt/unavailable sessionStorage — falls through, eye just starts centered as before.
     }
 
     window.addEventListener(
@@ -217,11 +247,26 @@ const irisFibers = Array.from({ length: FIBER_COUNT }, (_, i) => irisFiber(i));
   // pointermove to follow.
   if (blinkGroup) {
     const group = blinkGroup;
+    const veinEls = Array.from(group.querySelectorAll<SVGPathElement>('.eye-vein'));
+
+    // Each blink "refreshes" the bloodshot look: every vein's fade-in animation restarts from
+    // scratch, same as a real blink clearing the eye. Toggling just animation-name (not the
+    // animation shorthand) is what lets it restart cleanly without clobbering the per-vein
+    // duration/delay already set inline above — setting the shorthand would reset those too.
+    function refreshVeins() {
+      for (const el of veinEls) {
+        el.style.animationName = 'none';
+        void el.getBoundingClientRect();
+        el.style.animationName = '';
+      }
+    }
+
     function scheduleBlink() {
-      const delay = 2600 + Math.random() * 3200;
+      const delay = 20000 + Math.random() * 10000;
       setTimeout(() => {
         group.classList.add('blinking');
         setTimeout(() => group.classList.remove('blinking'), 160);
+        refreshVeins();
         scheduleBlink();
       }, delay);
     }
@@ -264,10 +309,10 @@ const irisFibers = Array.from({ length: FIBER_COUNT }, (_, i) => irisFiber(i));
     opacity: 0.6;
   }
 
-  /* Fixed pattern, not randomized — each vein fades in from nothing on its own slow timeline
-     (staggered delays, set inline per-vein above) and holds once visible, so the eye reads as
-     freshly opened at first and gradually more "been sitting here a while" the longer the page
-     stays open. */
+  /* Fixed pattern, not randomized — each vein fades in from nothing on its own timeline
+     (staggered delays, set inline per-vein above), gradually reading as more "been sitting
+     here a while" — until the next blink (see refreshVeins() in the script) restarts every
+     vein's animation from scratch, clearing the look the same way a real blink would. */
   .eye-vein {
     fill: none;
     stroke: #7a28bd;
