@@ -1,10 +1,17 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 36">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <defs>
-    <radialGradient id="iris-gradient" cx="32" cy="18" r="7" gradientUnits="userSpaceOnUse">
+    <radialGradient id="iris-gradient" cx="40" cy="50" r="25" gradientUnits="userSpaceOnUse">
       <stop offset="0%" stop-color="#a145ed" />
       <stop offset="55%" stop-color="#6e14b8" />
       <stop offset="100%" stop-color="#2f084f" />
     </radialGradient>
+    <linearGradient id="lid-shadow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.16" />
+      <stop offset="100%" stop-color="#000000" stop-opacity="0" />
+    </linearGradient>
+    <clipPath id="eye-clip">
+      <path d="M8,50 Q50,4 92,50 Q50,96 8,50 Z" />
+    </clipPath>
   </defs>
   <style>
     .eye-blink {
@@ -19,9 +26,33 @@
     }
   </style>
   <g class="eye-blink">
-    <path d="M4,18 Q32,2 60,18 Q32,34 4,18 Z" fill="#ffffff" stroke="#4a4a4a" stroke-width="2.4" />
-    <circle cx="32" cy="18" r="7" fill="url(#iris-gradient)" />
-    <circle cx="32" cy="18" r="3.2" fill="#000000" />
-    <circle cx="29.9" cy="15.8" r="1.3" fill="#ffffff" opacity="0.85" />
+    <path d="M8,50 Q50,4 92,50 Q50,96 8,50 Z" fill="#ffffff" stroke="#4a4a4a" stroke-width="4.5" stroke-linejoin="round" />
+    <g clip-path="url(#eye-clip)">
+      <rect x="8" y="4" width="84" height="30" fill="url(#lid-shadow)" />
+      <circle cx="40" cy="50" r="25" fill="url(#iris-gradient)" />
+      <g fill="none" stroke="#1c052e" stroke-width="0.7" stroke-linecap="round" opacity="0.55">
+        <path d="M52.05,49.16 L63.44,48.36" />
+        <path d="M51.03,54.91 L61.47,59.56" />
+        <path d="M48.83,58.24 L57.19,66.03" />
+        <path d="M45.67,60.66 L51.03,70.75" />
+        <path d="M41.89,61.93 L43.68,73.21" />
+        <path d="M37.90,61.89 L35.92,73.14" />
+        <path d="M34.15,60.56 L28.61,70.55" />
+        <path d="M31.03,58.08 L22.54,65.72" />
+        <path d="M28.88,54.72 L18.37,59.18" />
+        <path d="M27.95,50.84 L16.56,51.64" />
+        <path d="M28.97,45.09 L18.53,40.44" />
+        <path d="M31.17,41.76 L22.81,33.97" />
+        <path d="M34.33,39.34 L28.97,29.25" />
+        <path d="M38.11,38.07 L36.32,26.79" />
+        <path d="M42.10,38.11 L44.08,26.86" />
+        <path d="M45.85,39.44 L51.39,29.45" />
+        <path d="M48.97,41.92 L57.46,34.28" />
+        <path d="M51.12,45.28 L61.63,40.82" />
+      </g>
+      <circle cx="40" cy="50" r="24.3" fill="none" stroke="#1c052e" stroke-width="1.4" opacity="0.75" />
+      <circle cx="40" cy="50" r="11.5" fill="#000000" />
+      <circle cx="32.5" cy="43" r="3.6" fill="#ffffff" opacity="0.9" />
+    </g>
   </g>
 </svg>

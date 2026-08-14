@@ -71,5 +71,8 @@ For anything beyond plain markdown (embedding a custom component, JSX-like expre
 ## Reference
 
 - [Astro Content Collections](https://docs.astro.build/en/guides/content-collections/) — how the schema/loader above works
-- [Astro Markdown](https://docs.astro.build/en/guides/markdown-content/)
-- [CommonMark syntax](https://commonmark.org/help/)
+- [Astro Markdown](https://docs.astro.build/en/guides/markdown-content/) — how `.md`/`.mdx` files get turned into pages here
+- [Astro MDX integration](https://docs.astro.build/en/guides/integrations-guide/mdx/) — components/expressions inside post bodies
+- [Astro syntax highlighting](https://docs.astro.build/en/guides/syntax-highlighting/) — fenced code blocks are highlighted via Shiki by default; this covers supported languages and themes
+- [CommonMark syntax](https://commonmark.org/help/) — the base markdown spec
+- [GitHub Flavored Markdown spec](https://github.github.com/gfm/) — tables, strikethrough, task lists, autolinks (all enabled by default in Astro's markdown, on top of CommonMark)
