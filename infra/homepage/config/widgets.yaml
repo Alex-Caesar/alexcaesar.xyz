@@ -1,0 +1,13 @@
+- greeting:
+    text_size: xl
+    text: Welcome back, Alex
+
+- datetime:
+    text_size: xl
+    format:
+      dateStyle: long
+      timeStyle: short
+
+- search:
+    provider: duckduckgo
+    target: _blank

@@ -22,7 +22,7 @@ src/
   components/       Reusable Astro components
   layouts/          Page layouts (base + blog post)
   lib/              Shared client-side logic (background pattern generators)
-  pages/            Routes (/, /work/, /about/, /blog/)
+  pages/            Routes (/, /projects/, /about/, /blog/)
   styles/           Design tokens + global styles
 public/             Static assets (favicons, resume PDFs, fonts)
 ```
@@ -55,6 +55,10 @@ See [SITE-STANDARDS.md](SITE-STANDARDS.md) — recommended monitoring/CI tooling
 `npm run build` produces a fully static site in `dist/`, which is deployed to a self-hosted [Caddy](https://caddyserver.com/) server. No CI is configured — builds are deployed manually by syncing `dist/` to the server's web root and reloading Caddy.
 
 This redesign changed the URL structure (e.g. `/blog.html` → `/blog/`, `/contact.html` → `/connect/`). The server config redirects the old paths to their new equivalents so existing links/bookmarks keep working.
+
+## Server config
+
+[infra/](infra/) mirrors the VPS config (Caddyfile, homepage dashboard, monitoring stack) for backup and change tracking. See [infra/README.md](infra/README.md). This repo is private specifically so this directory is safe to keep here — real secrets (`.env` files) still stay VPS-only.
 
 ## License
 

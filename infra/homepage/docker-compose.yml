@@ -1,0 +1,18 @@
+services:
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3001:3000"
+    volumes:
+      - ./config:/app/config
+    env_file:
+      - .env
+    networks:
+      - monitoring
+
+networks:
+  monitoring:
+    name: monitoring-stack_monitoring
+    external: true

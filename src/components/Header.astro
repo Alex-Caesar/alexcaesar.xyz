@@ -5,8 +5,8 @@ import EyeTracker from './EyeTracker.astro';
 const { pathname } = Astro.url;
 const links = [
   { href: '/', label: 'Home' },
-  { href: '/work/', label: 'Work' },
   { href: '/blog/', label: 'Blog' },
+  { href: '/projects/', label: 'Projects' },
   { href: '/about/', label: 'About' },
 ];
 const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.startsWith(href));
@@ -14,7 +14,7 @@ const isActive = (href: string) => (href === '/' ? pathname === '/' : pathname.s
 
 <header class="site-header">
   <div class="site-header-inner">
-    <a class="header-eye" href="https://app.alexcaesar.xyz" aria-label="Open app.alexcaesar.xyz">
+    <a class="header-eye" href="https://homepage.alexcaesar.xyz" aria-label="Open homepage.alexcaesar.xyz">
       <EyeTracker />
     </a>
     <nav aria-label="Primary">

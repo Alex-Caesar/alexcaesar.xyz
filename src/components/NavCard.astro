@@ -3,14 +3,15 @@ interface Props {
   href?: string;
   title: string;
   description: string;
+  mono?: boolean;
 }
 
-const { href, title, description } = Astro.props;
+const { href, title, description, mono } = Astro.props;
 const Tag = href ? 'a' : 'div';
 ---
 
 <Tag class="nav-card" href={href}>
-  <h2>{title}</h2>
+  <h2 class={mono ? 'mono' : undefined}>{title}</h2>
   <p>{description}</p>
 </Tag>
 
@@ -36,6 +37,12 @@ const Tag = href ? 'a' : 'div';
     margin: 0 0 var(--space-2);
     font-size: var(--font-size-lg);
     color: var(--color-link);
+  }
+
+  /* Space Grotesk's "0" is a plain oval, indistinguishable from a capital "O" — monospace
+     fonts give the zero a distinct shape, so titles containing one (e.g. "0xify") stay legible. */
+  .nav-card h2.mono {
+    font-family: var(--font-mono);
   }
 
   .nav-card p {

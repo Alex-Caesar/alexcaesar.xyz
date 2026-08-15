@@ -1,0 +1,7 @@
+# Add this block to your existing /etc/caddy/Caddyfile, then reload Caddy.
+# Replace grafana.yourdomain.com with the subdomain/domain you want to use
+# (make sure its DNS A/AAAA record already points at this VPS).
+
+grafana.yourdomain.com {
+    reverse_proxy localhost:3000
+}

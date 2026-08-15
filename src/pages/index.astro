@@ -9,19 +9,20 @@ import NavCard from '../components/NavCard.astro';
   description="Alexander Caesar — software developer. Resume, blog, and ways to connect."
 >
   <section class="hero">
+    <hr class="hero-divider hero-divider-top" />
     <h1 id="page-name">Alexander Caesar</h1>
-    <p class="tagline">Art and Science across the Universe</p>
+    <p class="tagline"><strong>Art</strong> and <strong>Science</strong> across the <strong>Universe</strong></p>
     <hr class="hero-divider" />
   </section>
 
   <Bio />
 
   <div class="discover-block">
-    <h2 class="discover-label">Discover My Work</h2>
+    <h2 class="discover-label">Discover</h2>
     <nav aria-label="Site sections" class="section-nav">
       <NavCard title="Ethereal" description="A Mind Altering Experience." />
       <NavCard title="Guillotine" description="Cutting Edge Technology." />
-      <NavCard title="0xify" description="***********" />
+      <NavCard title="0xify" description="***********" mono />
     </nav>
   </div>
 </BaseLayout>
@@ -153,12 +154,15 @@ import NavCard from '../components/NavCard.astro';
     background: var(--color-text);
   }
 
+  /* Mirrors .hero-divider but sits above the name instead of below the tagline — swaps which
+     side carries the space-8 gap (bottom instead of top) so it reads as leading into the name
+     rather than trailing it. */
+  .hero-divider-top {
+    margin: 0 calc(var(--space-6) - var(--space-4)) var(--space-8);
+  }
+
   .discover-block {
-    /* Carries the auto margins .section-nav used to hold on its own, now that there's a label
-       above it too — still soaks up leftover viewport height the same way, just centering the
-       label+cards pair together instead of the cards alone. */
-    margin-top: auto;
-    margin-bottom: auto;
+    margin-top: var(--space-8);
     text-align: center;
   }
 
