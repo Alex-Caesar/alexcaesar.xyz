@@ -4,7 +4,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 const projects = [
   { title: 'Ethereal', description: 'A Mind Altering Experience.' },
   { title: 'Guillotine', description: 'Cutting Edge Technology.' },
-  { title: '0xify', description: '***********' },
+  { title: '0xify', description: '***********', mono: true },
 ];
 ---
 
@@ -14,7 +14,7 @@ const projects = [
     {
       projects.map((project) => (
         <div class="project">
-          <h2>{project.title}</h2>
+          <h2 class={project.mono ? 'mono' : undefined}>{project.title}</h2>
           <p>{project.description}</p>
         </div>
       ))
@@ -35,6 +35,12 @@ const projects = [
 
   .project h2 {
     margin: 0 0 var(--space-2);
+  }
+
+  /* Space Grotesk's "0" is a plain oval, indistinguishable from a capital "O" — monospace
+     fonts give the zero a distinct shape, so titles containing one (e.g. "0xify") stay legible. */
+  .project h2.mono {
+    font-family: var(--font-mono);
   }
 
   .project p {
