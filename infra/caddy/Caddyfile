@@ -28,10 +28,6 @@
 
 alexcaesar.xyz www.alexcaesar.xyz {
 	root * /var/www/alexcaesar.xyz
-
-	redir /work /projects/ 301
-	redir /work/* /projects/ 301
-
 	try_files {path} {path}/ /index.html =404
 	file_server browse
 
