@@ -36,6 +36,12 @@ npm run build     # static build to dist/
 npm run preview   # preview the production build locally
 ```
 
+## TODO
+
+- [ ] Change the profile picture
+- [ ] Adjust the profile (bio text/content)
+- [ ] Update the different pages (fill in placeholder content — Work's project descriptions, etc.)
+
 ## Writing a blog post
 
 See [BLOGGING.md](BLOGGING.md) — frontmatter fields, image conventions, and links to the relevant docs.
