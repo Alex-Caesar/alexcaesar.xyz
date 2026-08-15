@@ -11,6 +11,7 @@ import NavCard from '../components/NavCard.astro';
   <section class="hero">
     <h1 id="page-name">Alexander Caesar</h1>
     <p class="tagline">Art and Science across the Universe</p>
+    <hr class="hero-divider" />
   </section>
 
   <Bio />
@@ -46,6 +47,55 @@ import NavCard from '../components/NavCard.astro';
     name.style.webkitBackgroundClip = 'text';
     name.style.color = 'transparent';
   }
+
+  // Highlighter sweep — deliberately tied to an actual scroll gesture, not just visibility, so
+  // anything already on screen at load reveals on first scroll rather than immediately, and
+  // anything further down reveals once scrolled into view — same rule, both cases. Reduced-
+  // motion users get every highlight instantly, no scroll needed. Currently only used in
+  // Bio.astro (the "My passion is..." line), but this stays in the homepage script rather than
+  // Bio.astro itself since document.querySelectorAll('.hl') already finds marks anywhere on
+  // the rendered page, Bio included — no need to duplicate the observer per component.
+  // A real marker moves at roughly constant speed, so a fixed transition-duration made longer
+  // phrases sweep by too fast relative to their length and shorter ones drag. Setting the
+  // duration from each mark's own rendered width (clamped to a sane range) instead keeps the
+  // sweep's actual speed constant regardless of how much text it's covering.
+  function setSweepDuration(el: HTMLElement) {
+    const pxPerSecond = 280;
+    const width = el.getBoundingClientRect().width;
+    const duration = Math.min(1.8, Math.max(0.5, width / pxPerSecond));
+    el.style.transitionDuration = `${duration.toFixed(2)}s`;
+  }
+
+  let pendingMarks = Array.from(document.querySelectorAll<HTMLElement>('.hl'));
+  if (pendingMarks.length) {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      pendingMarks.forEach((el) => el.classList.add('revealed'));
+    } else {
+      const revealVisible = () => {
+        pendingMarks = pendingMarks.filter((el) => {
+          const rect = el.getBoundingClientRect();
+          const isVisible = rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
+          if (isVisible) {
+            setSweepDuration(el);
+            el.classList.add('revealed');
+          }
+          return !isVisible;
+        });
+        if (pendingMarks.length === 0) window.removeEventListener('scroll', onScroll);
+      };
+
+      let ticking = false;
+      function onScroll() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          revealVisible();
+          ticking = false;
+        });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }
+  }
 </script>
 
 <style>
@@ -60,6 +110,15 @@ import NavCard from '../components/NavCard.astro';
   }
 
   .hero {
+    /* #main above is a flex column, which makes .hero a flex item — and a flex item with
+       auto left/right margins (for centering) does NOT stretch to fill the cross axis the way
+       a plain block child would; the auto margins opt it out of stretch sizing entirely, so it
+       shrank to fit its own content (the h1 text) instead of reaching the full 64rem. Explicit
+       width:100% sidesteps that: it's resolved before max-width caps it, so margin:auto has a
+       full 64rem box to center rather than a content-sized one. (.bio below only "worked"
+       without this because its unwrapped paragraph text happened to be wide enough to hit the
+       cap anyway — same underlying issue, just accidentally masked.) */
+    width: 100%;
     max-width: 64rem;
     margin: 0 auto;
     padding: var(--space-16) var(--space-4) var(--space-6);
@@ -75,6 +134,23 @@ import NavCard from '../components/NavCard.astro';
     color: var(--color-text-muted);
     font-size: var(--font-size-lg);
     margin: 0;
+  }
+
+  /* Solid, not dashed — a deliberate contrast against the dashed elements elsewhere on the
+     page. .hero and .bio share the same 64rem max-width, but not the same padding (1rem here
+     vs. --space-6/1.5rem on .bio), so a plain 100% width was consistently ~0.5rem wider on
+     each side than bio's actual content — this formula cancels that difference out (adds back
+     .hero's own padding, then reapplies .bio's) so the line lands flush with the image's left
+     edge and the text's right edge exactly, not just "roughly the same container". Uses
+     --color-text rather than a literal black: that resolves to actual black in light theme,
+     but flips to white in dark theme instead of vanishing against the near-black page
+     background the way a hardcoded #000 would. */
+  .hero-divider {
+    width: calc(100% - 2 * (var(--space-6) - var(--space-4)));
+    height: 2px;
+    margin: var(--space-8) calc(var(--space-6) - var(--space-4)) 0;
+    border: none;
+    background: var(--color-text);
   }
 
   .discover-block {

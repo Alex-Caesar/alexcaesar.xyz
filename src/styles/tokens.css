@@ -33,6 +33,11 @@
   --color-accent-text: var(--color-black);
   --color-border: var(--color-gray-700);
   --color-focus-ring: var(--color-purple-400);
+  /* Text-highlighter marker color — deliberately muted rather than neon (a plain #ffeb3b-style
+     yellow read too electric against this palette). Darkened further than the light-theme
+     shade below so it doesn't wash out white text sitting on top of it (5.3:1 against white,
+     vs. 10.6:1 for the light-theme shade against black text). */
+  --color-highlight: #7e601b;
 
   /* Type scale */
   --font-sans: 'Space Grotesk Variable', ui-sans-serif, system-ui, 'Segoe UI', Roboto, sans-serif;
@@ -83,6 +88,7 @@
     --color-accent-text: var(--color-black);
     --color-border: var(--color-gray-300);
     --color-focus-ring: var(--color-purple-link-light);
+    --color-highlight: #e6c24c;
   }
 }
 
@@ -97,6 +103,7 @@
   --color-accent-text: var(--color-black);
   --color-border: var(--color-gray-300);
   --color-focus-ring: var(--color-purple-link-light);
+  --color-highlight: #e6c24c;
 }
 
 :root[data-theme='dark'] {
@@ -110,4 +117,5 @@
   --color-accent-text: var(--color-black);
   --color-border: var(--color-gray-700);
   --color-focus-ring: var(--color-purple-400);
+  --color-highlight: #7e601b;
 }

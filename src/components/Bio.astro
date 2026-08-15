@@ -4,12 +4,9 @@ import meProfile from '../assets/images/me-profile.png';
 ---
 
 <section class="bio" aria-labelledby="bio-heading">
-  <svg class="bio-border" aria-hidden="true" preserveAspectRatio="none">
-    <rect x="1" y="1" width="calc(100% - 2px)" height="calc(100% - 2px)" rx="14" ry="14" />
-  </svg>
   <Image src={meProfile} alt="Portrait of Alexander Caesar" width={480} height={640} loading="eager" class="bio-image" />
   <div class="bio-text">
-    <h2 id="bio-heading">A bit about me</h2>
+    <h2 id="bio-heading">Profile</h2>
     <p>
       I have always been drawn to building things, from my childhood constructing Lego creations to
       delving into Software Development on a Raspberry Pi at the age of 13 with the guidance of my
@@ -25,8 +22,8 @@ import meProfile from '../assets/images/me-profile.png';
       the environment.
     </p>
     <p>
-      My passion is Enabling, Automating, and Integrating Tools or Technologies with excellence to
-      help make products or services that "just work".
+      <span class="hl">My passion is Enabling, Automating, and Integrating Tools or Technologies with excellence to
+      help make products or services that "just work".</span>
     </p>
     <p>
       At an organizational level, I want to instill a culture of continuous improvement to drive
@@ -42,7 +39,13 @@ import meProfile from '../assets/images/me-profile.png';
 
 <style>
   .bio {
-    position: relative;
+    /* This page's #main is a flex column (see index.astro), making .bio a flex item — a flex
+       item with auto left/right margins (for centering) doesn't stretch to fill the cross axis
+       the way a plain block child would, so without an explicit width this shrinks to fit its
+       own content instead of reaching the full 64rem. It happened to still hit 64rem in
+       practice because the unwrapped paragraph text was wide enough to hit the cap anyway —
+       explicit width:100% makes that reliable instead of incidental. */
+    width: 100%;
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-8);
@@ -50,28 +53,6 @@ import meProfile from '../assets/images/me-profile.png';
     max-width: 64rem;
     margin: var(--space-6) auto var(--space-12);
     padding: var(--space-6);
-  }
-
-  /* A rounded dashed box traced around the whole section — an SVG rect rather than
-     border-style: dashed, same reasoning as the old single-line divider it replaces: a real
-     border-style dash gives no control over dash/gap size, where stroke-dasharray does (6px
-     dash, 6px gap, matching that line's rhythm exactly). Inset by 1px on each side (and
-     preserveAspectRatio="none" so the rect isn't forced to stay square) so a centered stroke
-     never gets clipped by the SVG's own edge. */
-  .bio-border {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: visible;
-  }
-
-  .bio-border rect {
-    fill: none;
-    stroke: var(--color-border);
-    stroke-width: 1.5;
-    stroke-dasharray: 6 6;
   }
 
   /* Was a fixed 15rem thumbnail dwarfed by the flexibly-growing text column next to it — now
@@ -94,9 +75,41 @@ import meProfile from '../assets/images/me-profile.png';
 
   .bio-text h2 {
     margin-top: 0;
+    text-align: center;
   }
 
   .bio-text p {
     margin: 0 0 var(--space-4);
+  }
+
+  /* Highlighter sweep: a background rectangle sized to 0% width at rest, animated to 100%
+     once revealed (see the homepage's script — document.querySelectorAll('.hl') there already
+     picks up marks anywhere on the page, this component included). The span gets its own
+     tighter line-height first — the page's looser line-height (var(--line-height-base), 1.6)
+     would otherwise put the 78%/88% position/size percentages somewhere in the extra leading
+     instead of against the actual glyphs, cutting off cap-height tops and descenders. Unlike
+     the tagline's earlier use of this, paragraph text here is already --color-text (not a
+     muted shade), so no color override is needed for contrast against the highlight. */
+  .bio-text .hl {
+    line-height: 1.15;
+    background-image: linear-gradient(var(--color-highlight) 0 0);
+    background-repeat: no-repeat;
+    background-position: 0 78%;
+    background-size: 0% 88%;
+    padding: 0 0.05em;
+    margin: 0 -0.05em;
+    transition-property: background-size;
+    transition-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+    transition-duration: 0.7s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bio-text .hl {
+      transition-duration: 0s;
+    }
+  }
+
+  .bio-text .hl.revealed {
+    background-size: 100% 88%;
   }
 </style>
