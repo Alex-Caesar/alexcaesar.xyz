@@ -40,6 +40,10 @@ npm run preview   # preview the production build locally
 
 See [BLOGGING.md](BLOGGING.md) — frontmatter fields, image conventions, and links to the relevant docs.
 
+## Maintenance, SEO, and security baseline
+
+See [SITE-STANDARDS.md](SITE-STANDARDS.md) — recommended monitoring/CI tooling, known SEO/AI-crawler gaps, and a general security/web baseline checklist.
+
 ## Deployment
 
 `npm run build` produces a fully static site in `dist/`, which is deployed to a self-hosted [Caddy](https://caddyserver.com/) server. No CI is configured — builds are deployed manually by syncing `dist/` to the server's web root and reloading Caddy.
