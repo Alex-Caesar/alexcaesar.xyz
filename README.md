@@ -22,7 +22,7 @@ src/
   components/       Reusable Astro components
   layouts/          Page layouts (base + blog post)
   lib/              Shared client-side logic (background pattern generators)
-  pages/            Routes (/, /work/, /about/, /blog/)
+  pages/            Routes (/, /projects/, /about/, /blog/)
   styles/           Design tokens + global styles
 public/             Static assets (favicons, resume PDFs, fonts)
 ```
