@@ -46,6 +46,10 @@ See [BLOGGING.md](BLOGGING.md) — frontmatter fields, image conventions, and li
 
 This redesign changed the URL structure (e.g. `/blog.html` → `/blog/`, `/contact.html` → `/connect/`). The server config redirects the old paths to their new equivalents so existing links/bookmarks keep working.
 
+## Server config
+
+[infra/](infra/) mirrors the VPS config (Caddyfile, homepage dashboard, monitoring stack) for backup and change tracking. See [infra/README.md](infra/README.md). This repo is private specifically so this directory is safe to keep here — real secrets (`.env` files) still stay VPS-only.
+
 ## License
 
 Content (writing, resume, bio) is not licensed for reuse. Feel free to reference the code/structure for your own site.

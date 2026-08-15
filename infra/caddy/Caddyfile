@@ -1,0 +1,67 @@
+{
+	admin 172.18.0.1:2019
+}
+
+# The Caddyfile is an easy way to configure your Caddy web server.
+#
+# Unless the file starts with a global options block, the first
+# uncommented line is always the address of your site.
+#
+# To use your own domain name (with automatic HTTPS), first make
+# sure your domain's A/AAAA DNS records are properly pointed to
+# this machine's public IP, then replace ":80" below with your
+# domain name.
+
+:80 {
+	# Set this path to your site's directory.
+	root * /usr/share/caddy
+
+	# Enable the static file server.
+	file_server
+
+	# Another common task is to set up a reverse proxy:
+	# reverse_proxy localhost:8080
+
+	# Or serve a PHP site through php-fpm:
+	# php_fastcgi localhost:9000
+}
+
+alexcaesar.xyz www.alexcaesar.xyz {
+	root * /var/www/alexcaesar.xyz
+	try_files {path} {path}/ /index.html =404
+	file_server browse
+
+	@hidden path_regexp ^\.
+	handle @hidden {
+		respond "Forbidden" 403
+	}
+}
+
+files.alexcaesar.xyz {
+	root * /var/www/files.alexcaesar.xyz
+
+	# This line gives you the nice file explorer
+	file_server browse
+
+	# Optional: make it look even cleaner
+	templates
+
+	# Optional: hide hidden files and folders (like .git, .env, etc.)
+	@hidden path_regexp ^\.
+	handle @hidden {
+		respond "Access denied" 403
+	}
+
+	# Optional but nice: sort by name, show file sizes, last modified, etc.
+	# (already default with "browse", but you can customize the template later if you want)
+}
+
+grafana.alexcaesar.xyz {
+	reverse_proxy localhost:3000
+}
+
+homepage.alexcaesar.xyz {
+	reverse_proxy localhost:3001
+}
+# Refer to the Caddy docs for more information:
+# https://caddyserver.com/docs/caddyfile

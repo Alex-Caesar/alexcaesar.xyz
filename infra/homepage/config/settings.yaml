@@ -1,0 +1,8 @@
+title: alexcaesar.xyz
+theme: dark
+color: slate
+headerStyle: boxed
+layout:
+  Monitoring:
+    style: row
+    columns: 3

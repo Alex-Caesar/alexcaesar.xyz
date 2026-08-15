@@ -17,6 +17,9 @@ pnpm-debug.log*
 .env
 .env.production
 
+# infra secrets — real .env files live only on the VPS, never here
+infra/**/.env
+
 # macOS-specific files
 .DS_Store
 
