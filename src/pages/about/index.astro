@@ -4,7 +4,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 const connectLinks = [
   { href: 'https://www.linkedin.com/in/alexcaesar', label: 'LinkedIn' },
   { href: 'https://github.com/Alex-Caesar?tab=repositories', label: 'GitHub' },
-  { href: 'mailto:alexjcaesar@yahoo.com', label: 'Email' },
 ];
 ---
 
@@ -25,6 +24,11 @@ const connectLinks = [
             </li>
           ))
         }
+        <li>
+          {/* Address is assembled client-side (not present in the served HTML) so plain-text
+             scrapers can't harvest it, while a real visitor still gets a working mailto link. */}
+          <a id="email-link" href="#">Email</a>
+        </li>
       </ul>
     </div>
 
@@ -42,6 +46,17 @@ const connectLinks = [
     </div>
   </section>
 </BaseLayout>
+
+<script>
+  // Built from parts at runtime rather than written as a literal string, so the address never
+  // appears intact in the served HTML/JS source for plain-text scrapers to harvest.
+  const user = ['a', 'l', 'e', 'x', 'j', 'c', 'a', 'e', 's', 'a', 'r'].join('');
+  const domain = ['y', 'a', 'h', 'o', 'o', '.', 'c', 'o', 'm'].join('');
+  const link = document.getElementById('email-link');
+  if (link instanceof HTMLAnchorElement) {
+    link.href = `mailto:${user}@${domain}`;
+  }
+</script>
 
 <style>
   .page {

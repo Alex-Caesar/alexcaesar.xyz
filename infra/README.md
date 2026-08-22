@@ -1,6 +1,6 @@
 # infra
 
-Config for the VPS that hosts alexcaesar.xyz, mirrored here for backup and change tracking. This directory is a snapshot pulled from the server (`ubuntu@172.93.52.164`) — it's not deployed automatically; edits here need to be copied back up manually.
+Config for the VPS that hosts alexcaesar.xyz, mirrored here for backup and change tracking. This directory is a snapshot pulled from the server (`ubuntu@<vps-ip>`) — it's not deployed automatically; edits here need to be copied back up manually.
 
 Real `.env` files with secrets stay on the VPS only and are never committed (`infra/**/.env` is gitignored). Each service ships a `.env.example` documenting the required keys.
 
