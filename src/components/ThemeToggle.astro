@@ -1,7 +1,11 @@
 ---
 ---
 
-<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Toggle dark mode">
+<button id="theme-toggle" class="theme-toggle" type="button" aria-label="Color theme: System. Click to switch to light.">
+  <svg class="icon icon-system" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2" />
+    <path fill="currentColor" d="M12 3a9 9 0 0 0 0 18z" />
+  </svg>
   <svg class="icon icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
     <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2" />
     <path
@@ -19,18 +23,35 @@
 
 <script>
   const STORAGE_KEY = 'theme';
+  type Mode = 'system' | 'light' | 'dark';
+  const CYCLE: Record<Mode, Mode> = { system: 'light', light: 'dark', dark: 'system' };
+  const LABEL: Record<Mode, string> = { system: 'System', light: 'Light', dark: 'Dark' };
 
-  function currentTheme(): 'light' | 'dark' {
+  function currentMode(): Mode {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'light' || stored === 'dark') return stored;
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    return stored === 'light' || stored === 'dark' ? stored : 'system';
+  }
+
+  function apply(mode: Mode) {
+    if (mode === 'system') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', mode);
+    }
+    const next = CYCLE[mode];
+    button?.setAttribute('aria-label', `Color theme: ${LABEL[mode]}. Click to switch to ${LABEL[next].toLowerCase()}.`);
   }
 
   const button = document.getElementById('theme-toggle');
+  apply(currentMode());
   button?.addEventListener('click', () => {
-    const next = currentTheme() === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem(STORAGE_KEY, next);
+    const next = CYCLE[currentMode()];
+    if (next === 'system') {
+      localStorage.removeItem(STORAGE_KEY);
+    } else {
+      localStorage.setItem(STORAGE_KEY, next);
+    }
+    apply(next);
   });
 </script>
 
@@ -60,24 +81,30 @@
     height: 1.15rem;
   }
 
+  .icon-system {
+    display: block;
+  }
+
+  .icon-sun,
   .icon-moon {
     display: none;
   }
 
-  /* Dark theme shows the moon (click to go light); light theme shows the sun (click to go dark). */
-  :global(:root[data-theme='dark']) .icon-sun {
+  /* Three states, one icon each: no data-theme attribute means "following the system," shown
+     by the half-filled circle (the default, so it's also what renders before JS runs). An
+     explicit data-theme is a manual override, shown as its own sun/moon icon regardless of
+     what the system is actually set to. */
+  :global(:root[data-theme='light']) .icon-system {
+    display: none;
+  }
+  :global(:root[data-theme='light']) .icon-sun {
+    display: block;
+  }
+
+  :global(:root[data-theme='dark']) .icon-system {
     display: none;
   }
   :global(:root[data-theme='dark']) .icon-moon {
     display: block;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    :global(:root:not([data-theme='light'])) .icon-sun {
-      display: none;
-    }
-    :global(:root:not([data-theme='light'])) .icon-moon {
-      display: block;
-    }
   }
 </style>
